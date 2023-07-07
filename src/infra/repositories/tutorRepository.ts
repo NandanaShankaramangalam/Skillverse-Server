@@ -1,4 +1,4 @@
-import { tutor } from "../../domain/models/tutor";
+import { tutor, tutorProfile } from "../../domain/models/tutor";
 import { UpdateResult } from "../../domain/models/update";
 import { MongoDBTutor, tutorModel } from "../database/tutorModel";
 import { ObjectId } from 'mongodb';
@@ -9,6 +9,8 @@ export type tutorRepository = {
     findTutors() : Promise<tutor[]>;
     blockTutors(id:string):Promise<tutor | UpdateResult | void>;
     unblockTutors(id:string):Promise<tutor|UpdateResult|void>;
+    addTutorProfile(fileLocation:string,description:string,tutId:string): Promise<tutor|UpdateResult|void>;
+    findTutorProfile(tutId:string): Promise<tutorProfile | null>
 }
 
 export const tutorRepositoryImpl = (tutorModel:MongoDBTutor):tutorRepository=>{
@@ -56,11 +58,37 @@ export const tutorRepositoryImpl = (tutorModel:MongoDBTutor):tutorRepository=>{
           } 
     }
 
+    //Add Profile
+    const addTutorProfile = async(fileLocation:string,description:string,tutId:string):Promise<tutor|void|UpdateResult > =>{
+        const result = await tutorModel.updateOne({_id:new ObjectId(tutId)},{$set:{fileLocation:fileLocation,description:description}});
+        if(result.modifiedCount>0){
+            console.log('added desc and loc');
+            return result
+          } 
+           
+    }
+
+    //Show Tutor Profile 
+    const  findTutorProfile = async(tutId:string):Promise<tutorProfile | null>=>{
+        const profileData = await tutorModel.aggregate([
+            {$match:{_id:new ObjectId(tutId)}},
+            {$project:{_id:1,fileLocation:1,description:1}}
+        ])
+        if (profileData && profileData.length > 0) {
+            const profile = profileData[0] as tutorProfile;
+            return profile;
+          }
+        
+          return null;
+        
+    }
     return{
         create,
         findByEmail,
         findTutors,
         blockTutors,
         unblockTutors,
+        addTutorProfile,
+        findTutorProfile,
     }
 }

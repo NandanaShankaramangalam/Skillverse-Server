@@ -1,9 +1,11 @@
+import { ObjectId } from 'mongodb';
 import mongoose, { Document, Model, Schema } from 'mongoose';
 import { tutor } from '../../domain/models/tutor';
 
 export type MongoDBTutor = Model<Document<any, any, any> & tutor>;
 
 const tutorSchema = new Schema<tutor>({
+   
     fname: {
         type : 'string',
         required : true,
@@ -33,6 +35,12 @@ const tutorSchema = new Schema<tutor>({
         type : 'boolean',
         default : true
     },
+    fileLocation: {
+        type : 'string',
+    },
+    description:{
+        type : 'string',
+    }
 })
 
 export const tutorModel: MongoDBTutor = mongoose.connection.model<Document<any, any, any> & tutor>('tutor', tutorSchema);

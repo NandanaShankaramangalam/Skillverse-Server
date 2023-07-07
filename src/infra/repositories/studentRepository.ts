@@ -23,8 +23,7 @@ export type studentRepository = {
 export const studentRepositoryImpl = (studentModel:MongoDBUser):studentRepository=>{
     //Create Student
     const create = async(student:student):Promise<student>=>{
-    
-          
+       
         const createdStudent=await studentModel.create(student)
         console.log('hiiii-',createdStudent);
         

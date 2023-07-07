@@ -1,3 +1,4 @@
+import { ObjectId } from 'mongodb';
 export interface tutor{
     fname: string,
     lname: string,
@@ -5,5 +6,13 @@ export interface tutor{
     email: string,
     password: string,
     role ?: string,
-    status?:boolean
+    status?:boolean,
+    fileLocation?:string,
+    description?:string,
+}
+
+export interface tutorProfile{
+    _id : string,
+    fileLocation?:string,
+    description?:string,
 }

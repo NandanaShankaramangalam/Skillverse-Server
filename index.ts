@@ -1,4 +1,8 @@
 const express = require('express');
+//middleware
+const multer = require('multer');
+const AWS = require('./awsConfig');
+//middleware end
 const mongoose = require('mongoose')
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
@@ -11,6 +15,12 @@ import {studentRouter} from './src/interfaces/routes/studentRoutes';
 import { db } from './src/infra/database/config';
 import { errorHandler} from './src/utils/errorHandler';
 require('dotenv').config();
+
+// Multer configuration
+const storage = multer.memoryStorage();
+export const upload = multer({ storage });
+
+
 const app = express();
 app.listen(3001,()=>{
     console.log('connected...');  

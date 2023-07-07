@@ -1,9 +1,12 @@
+import { categoryRepository, categoryRepositoryImpl } from './../../infra/repositories/categoryRepository';
+import { category } from './../../domain/models/category';
 import { tutorRepository, tutorRepositoryImpl } from './../../infra/repositories/tutorRepository';
 import { studentRepository, studentRepositoryImpl} from './../../infra/repositories/studentRepository';
 import { admin } from './../../domain/models/admin';
 import { adminRepository, adminRepositoryImpl } from './../../infra/repositories/adminRepository';
 import { Request,Response } from "express";
 import { adminModel } from "../../infra/database/adminModel";
+
 import { loginAdmin } from '../../app/usecases/admin/logAdmin';
 import { fetchStudentData } from '../../app/usecases/admin/fetchStudent';
 import { studentModel } from '../../infra/database/studentModel';
@@ -13,7 +16,13 @@ import { tutorModel } from '../../infra/database/tutorModel';
 import { fetchTutorData } from '../../app/usecases/admin/fetchTutor';
 import { blockTut } from '../../app/usecases/tutor/blockTutor';
 import { unblockTut } from '../../app/usecases/tutor/unblockTutor';
-
+import { createCategory } from '../../app/usecases/admin/addCategory';
+import { categoryModel } from '../../infra/database/categoryModel';
+import { fetchCategoryData } from '../../app/usecases/admin/fetchCategory';
+import { CategoryList } from '../../app/usecases/admin/listCategory';
+import { CategoryUnlist } from '../../app/usecases/admin/unlistCategory';
+import { subCategoryAdd } from '../../app/usecases/admin/addSubcategory';
+import { categoryEdit } from '../../app/usecases/admin/editCategory';
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = 'your-secret-key';
 
@@ -25,6 +34,9 @@ const studentRepository = studentRepositoryImpl(studDb);
 
 const tutDb = tutorModel;
 const tutorRepository = tutorRepositoryImpl(tutDb);
+
+const cateDb = categoryModel;
+const categoryRepository = categoryRepositoryImpl(cateDb);
 //Admin Login
 export const adminLogin = async(req:Request,res:Response)=>{
     console.log('reqst=',req.body);
@@ -73,11 +85,12 @@ export const showStudent = async(req:Request,res:Response)=>{
 //Block Student
 export const blockStudent = async(req:Request,res:Response)=>{
     console.log('blkuesr',req.body);
-    const {id} = req.body;
-    console.log('cntrl id=',id);
+    
+    // console.log('cntrl id=',id);
     
     // const blocked =  blockStudent(studentRepository)(id);
     try{
+        const {id} = req.body;
         const blocked =  await blockStud(studentRepository)(id);
         console.log('blocked in cntrl',blocked);
         if(blocked){
@@ -166,4 +179,112 @@ export const unblockTutor = async(req:Request,res:Response)=>{
 //Add Category
 export const addCategory = async(req:Request,res:Response)=>{
     console.log('Add cate rqbdy = ',req.body);
+    const category = req.body.category;
+    const subcate = req.body.subcategory;
+    const subcateArray = subcate.split(',');
+    try{
+        const cateData = await createCategory(categoryRepository)(category,subcateArray)
+        if(cateData){
+            res.status(201).json({message:'Category added succesfully',cateData})
+        }
+        else{
+            res.status(401).json({message:'Invalid datas'})
+        }
+    }catch(err){
+        res.status(500).json({message:'Internal server error!'});
+    }
+}
+
+//Fetch Category Data
+export const showCategory = async(req:Request,res:Response)=>{
+    try{
+        console.log('okkkkkkkkkkkkkkkkkkkkkkk');
+        
+        const cateData = await fetchCategoryData(categoryRepository)();
+        
+        if(cateData){
+            
+            const newArray = cateData.map(obj=>{return {...obj,subcategory:obj.subcategory.join()}})
+            console.log('kk',newArray);
+            res.json({success:'Category data fetching successful',newArray});
+        }else{
+            res.json({ invalid: "No category data available!" });
+        }  
+    }catch(error){
+        res.status(500).json({ message: "Internal server error" });
+    }  
+}
+
+//List Category
+export const listCategory = async(req:Request,res:Response)=>{
+    console.log('list cat = ',req.body);
+    const {id} = req.body;
+    console.log('cntrl list cat id=',id);
+    try{
+        const listData = await CategoryList(categoryRepository)(id);
+        console.log('listdata',listData);
+        if(listData){
+            res.json({message:'category listed',isListed:true})
+        }else{
+            res.json({message:'category list failed'})
+        }
+    }catch(error){
+        res.status(500).json({ message: "Internal server error" });
+    }  
+}
+
+//List Category
+export const unlistCategory = async(req:Request,res:Response)=>{
+    console.log('unlist cat = ',req.body);
+    const {id} = req.body;
+    console.log('cntrl unlist cat id=',id);
+    try{
+        const unlistData = await CategoryUnlist(categoryRepository)(id);
+        console.log('unlist in cntrl',unlistData);
+        if(unlistData){
+            res.json({message:'Category unlisted',isUnlist:true})
+        }else{
+            res.json({message:'Category unlist failed'})
+        }
+    }catch(err){      
+        console.log(err);  
+    }
+}
+
+//Add Subcategory
+export const addSubcategory = async(req:Request,res:Response)=>{
+  console.log('subctgry=',req.body);
+  const {subcategory,cid} = req.body;
+  try{
+    const subCategoryData = await subCategoryAdd(categoryRepository)(subcategory,cid);
+    console.log('subcat in cntrl',subCategoryData);
+    if(subCategoryData){
+        res.json({message:'Subcategory added successfully'})
+    }else{
+        res.json({message:'Subcategory add failed'})
+    }
+}catch(err){
+    console.log(err);
+                          
+}
+}
+
+//Edit Category
+export const editCategory = async(req:Request,res:Response)=>{
+    console.log('catgry=',req.body);
+    const {category,cid} = req.body;
+    try{
+        const editCategoryData = await categoryEdit(categoryRepository)(category,cid);
+        console.log('edit cat',editCategoryData);
+        if(editCategoryData){
+            res.json({message:'Category edited successfully'})
+        }else{
+            res.json({message:'Category edit failed'})
+        }
+        
+    }catch(err){
+        console.log(err);
+                              
+    }
+    
 }

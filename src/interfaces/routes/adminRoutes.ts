@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { addCategory, adminLogin, blockStudent, blockTutor, showStudent, showTutor, unblockStudent, unblockTutor } from '../controllers/adminController';
+import { addCategory, addSubcategory, adminLogin, blockStudent, blockTutor, editCategory, listCategory, showCategory, showStudent, showTutor, unblockStudent, unblockTutor, unlistCategory } from '../controllers/adminController';
 export const adminRouter = Router();
 
 adminRouter.post('/admin-login',adminLogin);
@@ -13,3 +13,8 @@ adminRouter.post('/block-tutor',blockTutor);
 adminRouter.post('/unblock-tutor',unblockTutor); 
 
 adminRouter.post('/add-category',addCategory);  
+adminRouter.get('/show-category',showCategory);  
+adminRouter.post('/list-category',listCategory);  
+adminRouter.post('/unlist-category',unlistCategory);  
+adminRouter.post('/add-subcategory',addSubcategory);  
+adminRouter.post('/edit-category',editCategory);  
