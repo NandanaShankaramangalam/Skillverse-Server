@@ -5,21 +5,27 @@ import { UpdateResult } from '../../domain/models/update';
 import { ObjectId } from 'mongodb';
 
 export type categoryRepository = {
-    addCategory(category:category):Promise<category>;
+    addCategory(category:category):Promise<category|null>;
     findCategory(): Promise<category[]>;
     listCategory(id:string):Promise<category|UpdateResult|void>;
     unlistCategory(id:string):Promise<category|UpdateResult|void>;
     addSubcategory(subcategory:string,cid:string):Promise<category|UpdateResult|void>;
     editCategory(category:string,cid:string):Promise<category|UpdateResult|void>;
+    findTutCategory(): Promise<category[]>;
 }
 
 
 export const categoryRepositoryImpl = (categoryModel:MongoDBCategory):categoryRepository=>{
  //Add Category
-const addCategory = async(category:category):Promise<category>=>{
+const addCategory = async(category:category):Promise<category | null>=>{
+    const cat = await categoryModel.find({category:category});
+    if(!cat){
     const createdCategory = await categoryModel.create(category);
     console.log('hiiii-',createdCategory);
-    return createdCategory.toObject();
+    return createdCategory.toObject(); 
+    }
+    return null
+    
 }
 
 //Fetch category data
@@ -67,6 +73,11 @@ const editCategory = async(category:string,cid:string):Promise<category|void|Upd
       } 
 }
 
+//Fetch tutor category data
+const findTutCategory = async():Promise<category[]> =>{
+    const category = await categoryModel.find({status:true});
+    return category.map((cate) => cate.toObject());
+}
     return{
         addCategory,
         findCategory,
@@ -74,5 +85,6 @@ const editCategory = async(category:string,cid:string):Promise<category|void|Upd
         unlistCategory,
         addSubcategory,
         editCategory,
+        findTutCategory,
     }
 }

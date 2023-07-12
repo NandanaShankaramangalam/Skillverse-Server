@@ -9,6 +9,7 @@ export interface tutor{
     status?:boolean,
     fileLocation?:string,
     description?:string,
+    block?:boolean
 }
 
 export interface tutorProfile{

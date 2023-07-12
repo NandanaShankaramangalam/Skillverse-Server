@@ -38,7 +38,7 @@ export const tutorRepositoryImpl = (tutorModel:MongoDBTutor):tutorRepository=>{
     }
     
     //Block Tutor
-    const blockTutors = async(id:string):Promise<tutor|void|UpdateResult > =>{
+    const blockTutors = async(id:string):Promise< tutor|void|UpdateResult > =>{
         console.log('iddd=',id);
         const result = await tutorModel.updateOne({_id:new ObjectId(id)},{$set:{status:false}});
         if(result.modifiedCount>0){

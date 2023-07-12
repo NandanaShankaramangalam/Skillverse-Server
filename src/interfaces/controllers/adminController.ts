@@ -233,7 +233,7 @@ export const listCategory = async(req:Request,res:Response)=>{
     }  
 }
 
-//List Category
+//Unlist Category
 export const unlistCategory = async(req:Request,res:Response)=>{
     console.log('unlist cat = ',req.body);
     const {id} = req.body;

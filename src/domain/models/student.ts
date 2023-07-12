@@ -4,6 +4,7 @@ export interface student{
     username: string,
     email: string,
     password: string,
-    role?: string
-    status?:boolean
+    role?: string,
+    status?:boolean,
+    block?:boolean,
 }

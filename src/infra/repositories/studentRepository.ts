@@ -1,4 +1,4 @@
-import { blockStudent } from './../../interfaces/controllers/adminController';
+
 import { student } from "../../domain/models/student";
 import { MongoDBUser, studentModel } from "../database/studentModel";
 import { ObjectId } from 'mongodb';
@@ -18,6 +18,8 @@ export type studentRepository = {
     findStudents(): Promise<student[]>;
     blockStudents(id:string):Promise<student|UpdateResult|void>;
     unblockStudents(id:string):Promise<student|UpdateResult|void>;
+    fetchPersonalInfo(id:string):Promise<student|null>;
+    updateInfo(fname:string,lname:string,username:string,email:string,id:string):Promise<student|UpdateResult|void>;
 }
 
 export const studentRepositoryImpl = (studentModel:MongoDBUser):studentRepository=>{
@@ -70,11 +72,28 @@ export const studentRepositoryImpl = (studentModel:MongoDBUser):studentRepositor
           return result
         } 
     }
+
+    //Fetch Personal Info
+    const fetchPersonalInfo = async(id:string):Promise<student | null>=>{
+       const info = await studentModel.findOne({_id : new ObjectId(id)});
+       return info ? info.toObject() : null;
+    }
+
+    //Update Personal Info
+    const updateInfo = async(fname:string,lname:string,username:string,email:string,id:string):Promise<student|void|UpdateResult>=>{
+       const result = await studentModel.updateOne({_id:new ObjectId(id)},{$set:{fname:fname,lname:lname,username:username,email:email}});
+       if(result.modifiedCount>0){
+        console.log('modifiedcount blk ok');
+        return result
+      } 
+    }
     return{
         create,
         findByEmail,
         findStudents,
         blockStudents,
         unblockStudents,
+        fetchPersonalInfo,
+        updateInfo
     }
 }
