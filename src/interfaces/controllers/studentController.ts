@@ -15,6 +15,7 @@ const AWS = require('aws-sdk');
 import {s3Config } from '../../../awsConfig'
 import { fetchInfo } from '../../app/usecases/student/fetchInfo';
 import { updatePersonalInfo } from '../../app/usecases/student/updateInfo';
+import { fetchCourse } from '../../app/usecases/student/fetchCourseDetails';
 
 // const JWT_SECRET="sdfghjlkj345678()fgjhkjhyftr[];dfghjhdfhggddfghghfdf3456";
 const JWT_SECRET='your-secret-key';
@@ -103,7 +104,7 @@ export const showCategory = async(req:Request,res:Response)=>{
             
             // const newArray = cateData.map(obj=>{return {...obj,subcategory:obj.subcategory.join()}})
             const newArray = cateData.map(obj=>{return {...obj,subcategory:obj.subcategory}})
-            console.log('kk',newArray);
+            // console.log('kk',newArray);
             res.json({success:'Category data fetching successful',newArray});
         }else{
             res.json({ invalid: "No category data available!" });
@@ -119,7 +120,7 @@ export const showCourses = async(req:Request,res:Response)=>{
         console.log('okkkkkk');
         
         const selectedCategory = req.params.selectedCategory;
-        console.log('sel ctgry=',selectedCategory);
+        // console.log('sel ctgry=',selectedCategory);
         const courses = await fetchCourses(courseRepository)(selectedCategory);
         console.log('cos=',courses);
 
@@ -175,7 +176,7 @@ export const showInfo = async(req:Request,res:Response)=>{
        const studId = req.params.studId;
        console.log('stud id=',studId);
        const info = await fetchInfo(studentRepository)(studId);
-       console.log('inn=',info);
+    //    console.log('inn=',info);
        if(info){
          res.json({success:'Personal Info fetching successful',info});
        }
@@ -196,13 +197,32 @@ export const updateInfo = async(req:Request,res:Response)=>{
         console.log('stud id=',studId);
         console.log('fname=',fname);
         const info = await updatePersonalInfo(studentRepository)(fname,lname,username,email,studId)
-        console.log('upp=',info);
+        // console.log('upp=',info);
         if(info){
             res.json({success:'Personal Info updating successful',info});
           }
           else{
            res.json({ invalid: "Personal Info updation failed!" });
           }
+
+    }catch(error){
+        res.status(500).json({ message: "Internal server error" });
+    } 
+}
+
+//Fetch Course Details
+export const fetchCourseDetails = async(req:Request,res:Response)=>{
+    try{
+        const courseId = req.params.courseId;
+        console.log('cid=',courseId);
+        const result = await fetchCourse(courseRepository)(courseId);
+        console.log('res==',result);
+        if(result){
+            res.json({success:'Course data fetching successful',result});
+          }
+          else{
+           res.json({ invalid: "Course data fetching failed!" });
+          }  
 
     }catch(error){
         res.status(500).json({ message: "Internal server error" });

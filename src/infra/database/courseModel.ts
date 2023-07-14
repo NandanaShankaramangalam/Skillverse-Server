@@ -19,6 +19,10 @@ const courseSchema = new Schema<Course>({
     subcategory : {
         type : [String],
     },
+    description : {
+        type : String,
+        required : true
+    },
     thumbnail : {
         type : String,
         required : true,
