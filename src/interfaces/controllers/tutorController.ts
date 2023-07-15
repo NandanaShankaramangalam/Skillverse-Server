@@ -12,6 +12,8 @@ import { categoryModel } from '../../infra/database/categoryModel';
 import { courseCreation } from '../../app/usecases/tutor/courseCreation';
 import { courseModel } from '../../infra/database/courseModel';
 import { tutor } from '../../domain/models/tutor';
+import { courseList } from '../../app/usecases/tutor/showCourses';
+import { fetchCourseDetails } from '../../app/usecases/tutor/courseDetails';
 const jwt=require('jsonwebtoken');
 
 const JWT_SECRET='your-secret-key';  
@@ -23,6 +25,7 @@ const categoryRepository = categoryRepositoryImpl(cateDb);
 
 const courseDb = courseModel;
 const courseRepository = courseRepositoryImpl(courseDb);
+
 
 //Tutor Registration
 export const tutorRegister = async(req:Request,res:Response)=>{
@@ -169,3 +172,37 @@ export const createCourse = async(req:Request,res:Response)=>{
     }  
 }
 
+//Show Courses
+ export const showCourses = async(req:Request,res:Response)=>{
+    try{
+        const courseData = await courseList(courseRepository)();
+        console.log('costut=',courseData);
+        if(courseData){
+            res.json({success:'Course fetching successful',courseData});
+           }else{
+            res.json({ invalid: "Course fetching failed!" });
+           }  
+         
+    }catch(error){
+        res.status(500).json({ message: "Internal server error" });
+    } 
+ }
+
+ //Show Course Details
+ export const showCourseDetails = async(req:Request,res:Response)=>{
+    try{
+       const id = req.params.courseId;
+       console.log('ciddd=',id);
+       
+       const courseData = await fetchCourseDetails(courseRepository)(id);
+       console.log('hhh=',courseData);
+       if(courseData){
+        res.json({success:'Course fetching successful',courseData});
+       }else{
+        res.json({ invalid: "Course fetching failed!" });
+       }  
+       
+    }catch(error){
+        res.status(500).json({ message: "Internal server error" });
+    } 
+ }
