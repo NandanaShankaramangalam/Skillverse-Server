@@ -9,8 +9,9 @@ export type tutorRepository = {
     findTutors() : Promise<tutor[]>;
     blockTutors(id:string):Promise<tutor | UpdateResult | void>;
     unblockTutors(id:string):Promise<tutor|UpdateResult|void>;
-    addTutorProfile(fileLocation:string,description:string,tutId:string): Promise<tutor|UpdateResult|void>;
+    addTutorProfile(profileLocation:string,bannerLocation:string,description:string,niche:string,tutId:string): Promise<tutor|UpdateResult|void>;
     findTutorProfile(tutId:string): Promise<tutorProfile | null>
+    editTutorProfile(profileLocation:string,bannerLocation:string,description:string,niche:string,tutId:string):Promise<tutor|void|UpdateResult> 
 }
 
 export const tutorRepositoryImpl = (tutorModel:MongoDBTutor):tutorRepository=>{
@@ -59,8 +60,8 @@ export const tutorRepositoryImpl = (tutorModel:MongoDBTutor):tutorRepository=>{
     }
 
     //Add Profile
-    const addTutorProfile = async(fileLocation:string,description:string,tutId:string):Promise<tutor|void|UpdateResult > =>{
-        const result = await tutorModel.updateOne({_id:new ObjectId(tutId)},{$set:{fileLocation:fileLocation,description:description}});
+    const addTutorProfile = async(profileLocation:string,bannerLocation:string,description:string,niche:string,tutId:string):Promise<tutor|void|UpdateResult > =>{
+        const result = await tutorModel.updateOne({_id:new ObjectId(tutId)},{$set:{profileLocation:profileLocation,bannerLocation:bannerLocation,description:description,niche:niche}});
         if(result.modifiedCount>0){
             console.log('added desc and loc');
             return result
@@ -72,7 +73,7 @@ export const tutorRepositoryImpl = (tutorModel:MongoDBTutor):tutorRepository=>{
     const  findTutorProfile = async(tutId:string):Promise<tutorProfile | null>=>{
         const profileData = await tutorModel.aggregate([
             {$match:{_id:new ObjectId(tutId)}},
-            {$project:{_id:1,fileLocation:1,description:1}}
+            {$project:{_id:1,bannerLocation:1,profileLocation:1,description:1,niche:1}}
         ])
         if (profileData && profileData.length > 0) {
             const profile = profileData[0] as tutorProfile;
@@ -82,13 +83,45 @@ export const tutorRepositoryImpl = (tutorModel:MongoDBTutor):tutorRepository=>{
           return null;
         
     }
+
+    //Edit Tutor Profile
+    
+    const editTutorProfile = async(profileLocation:string,bannerLocation:string,description:string,niche:string,tutId:string):Promise<tutor|void|UpdateResult > =>{
+        console.log('editut=',tutId);
+        console.log('editut=',profileLocation);
+        console.log('editut=',bannerLocation);
+        console.log('editut=',niche);
+        
+        if(profileLocation != '' && bannerLocation != ''){
+            const result = await tutorModel.updateOne({_id: new ObjectId(tutId)},{$set:{profileLocation:profileLocation,bannerLocation:bannerLocation,description:description,niche:niche}})
+            console.log('a');
+            return result;
+        }
+        else if(profileLocation != '' && bannerLocation === ''){
+            const result = await tutorModel.updateOne({_id: new ObjectId(tutId)},{$set:{profileLocation:profileLocation,description:description,niche:niche}})
+            console.log('b');
+            return result;
+        }
+        else if(profileLocation == '' && bannerLocation != ''){
+            const result = await tutorModel.updateOne({_id: new ObjectId(tutId)},{$set:{bannerLocation:bannerLocation,description:description,niche:niche}})
+            console.log('c');
+            return result;
+        }
+        else if(profileLocation === '' && bannerLocation === ''){
+            const result = await tutorModel.updateOne({_id: new ObjectId(tutId)},{$set:{description:description,niche:niche}})
+            console.log('d');
+            return result;
+        }
+        
+    }
     return{
         create,
-        findByEmail,
+        findByEmail,   
         findTutors,
         blockTutors,
         unblockTutors,
         addTutorProfile,
         findTutorProfile,
+        editTutorProfile,
     }
 }

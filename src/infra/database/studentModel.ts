@@ -33,6 +33,9 @@ const studentSchema = new Schema<student>({
         type : 'boolean',
         default : true
     },
+    courses : {
+        type : [Object]
+    },
 })
 
 export const studentModel: MongoDBUser = mongoose.connection.model<Document<any, any, any> & student>('student', studentSchema);

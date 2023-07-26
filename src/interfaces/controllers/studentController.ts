@@ -16,6 +16,10 @@ import {s3Config } from '../../../awsConfig'
 import { fetchInfo } from '../../app/usecases/student/fetchInfo';
 import { updatePersonalInfo } from '../../app/usecases/student/updateInfo';
 import { fetchCourse } from '../../app/usecases/student/fetchCourseDetails';
+import { coursePayment } from '../../app/usecases/student/payment';
+import { coursePurchased } from '../../app/usecases/student/coursePurchased';
+import { fetchStudentData } from '../../app/usecases/student/fetchStudentData';
+
 
 // const JWT_SECRET="sdfghjlkj345678()fgjhkjhyftr[];dfghjhdfhggddfghghfdf3456";
 const JWT_SECRET='your-secret-key';
@@ -91,6 +95,7 @@ export const studentLogin = async(req:Request,res:Response)=>{
           }
         }
     }catch (error) {
+        
         res.status(500).json({ message: "Internal server error" });
       }
     
@@ -102,8 +107,9 @@ export const showCategory = async(req:Request,res:Response)=>{
         const cateData = await fetchCategoryData(categoryRepository)();
         if(cateData){
             
-            // const newArray = cateData.map(obj=>{return {...obj,subcategory:obj.subcategory.join()}})
-            const newArray = cateData.map(obj=>{return {...obj,subcategory:obj.subcategory}})
+            
+            // const newArray = cateData.map(obj=>{return {...obj,subcategory:obj.subcategory}})
+            const newArray = cateData.map(obj=>{return {...obj}})
             // console.log('kk',newArray);
             res.json({success:'Category data fetching successful',newArray});
         }else{
@@ -224,6 +230,43 @@ export const fetchCourseDetails = async(req:Request,res:Response)=>{
            res.json({ invalid: "Course data fetching failed!" });
           }  
 
+    }catch(error){
+        res.status(500).json({ message: "Internal server error" });
+    } 
+}
+
+//Payment
+export const payment = async(req:Request,res:Response)=>{
+    try{
+     const {status,courseId,studId} = req.body;
+     console.log('status payment=',status,courseId);
+     const result = await coursePayment(courseRepository)(courseId,status,studId);
+     const resultData = await coursePurchased(studentRepository)(courseId,status,studId);
+     console.log('res==',result);
+        if(result){
+            res.json({success:'Payment successful',result});
+          }
+          else{
+           res.json({ invalid: "Payment failed!" });
+          } 
+    }catch(error){
+        res.status(500).json({ message: "Internal server error" });
+    } 
+}
+
+//Fetch Student Details
+export const fetchStudentDetails = async(req:Request,res:Response)=>{
+    try{   
+     const studId = req.params.studId;   
+     console.log('sid=',studId);
+     const studentData = await fetchStudentData(studentRepository)(studId);
+     console.log('stuudddatta=',studentData);
+     if(studentData){
+        res.json({success:'Student data fetching successful',studentData});
+      }
+      else{
+       res.json({ invalid: "Student data fetching failed!" });
+      } 
     }catch(error){
         res.status(500).json({ message: "Internal server error" });
     } 

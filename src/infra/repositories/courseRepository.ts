@@ -1,15 +1,19 @@
+// import { UpdateResult } from './studentRepository';
 import { ObjectId } from 'mongodb';
 import { category } from './../../domain/models/category';
 import { Course } from "../../domain/models/course";
 import { MongoDBCourse, courseModel } from "../database/courseModel";
+import { UpdateResult } from '../../domain/models/update';
 
 export type courseRepository = {
     createCourse : (course : Course) => Promise<Course>;
     fetchCourse : (selectedCategory : string) => Promise<Course[]>;
     fetchCourseData : (id : string) => Promise<Course | undefined>;
-    fetchTutorCourses : () => Promise<Course[]>;
+    fetchTutorCourses : (tutId:string) => Promise<Course[]>;
     fetchCourseDetails : (id:string) => Promise<Course | null>;
-}
+    insertTutorial : (videoLocation:string,thumbnailLocation:string,title:string,description:string,courseId:string) => Promise<Course | null | UpdateResult>;
+    coursePayment : (id:string,status:boolean,studId:string) => Promise<Course | void | UpdateResult>
+}    
 
 export const courseRepositoryImpl = (courseModel:MongoDBCourse):courseRepository=>{
     //Create Course
@@ -48,9 +52,9 @@ export const courseRepositoryImpl = (courseModel:MongoDBCourse):courseRepository
     }
 
     //Fetch Courses for Tutor
-    const fetchTutorCourses = async():Promise<Course[]>=>{
+    const fetchTutorCourses = async(tutId:string):Promise<Course[]>=>{
        try{
-         const courseData = await courseModel.find();
+         const courseData = await courseModel.find({tutId:tutId});
          return courseData.map((obj)=>obj.toObject());
        }catch (error) {
             console.error('Error occured:', error);
@@ -68,11 +72,50 @@ export const courseRepositoryImpl = (courseModel:MongoDBCourse):courseRepository
             throw error; // or handle the error appropriately
           }
     }
+
+    //Upload tutorial 
+    const insertTutorial = async(videoLocation:string,thumbnailLocation:string,title:string,description:string,courseId:string):Promise<Course | null | UpdateResult>=>{
+      try{
+        const tutorial = await courseModel.updateOne({_id:new ObjectId(courseId)},{ $push: { tutorial: { title: title, description: description, video:videoLocation, thumbnail: thumbnailLocation }}})
+        if(tutorial.modifiedCount>0){
+          console.log('modifiedcount of add tutorial');
+          return tutorial
+        } 
+        return null
+      }catch (error) {
+            console.error('Error occured:', error);
+            throw error; // or handle the error appropriately
+          }
+    }
+
+    //Payment
+    const coursePayment = async(id:string,status:boolean,studId:string):Promise<Course | void | UpdateResult>=>{
+      try{
+          const payment = await courseModel.updateOne(
+          {_id:new ObjectId(id)},
+          {
+          // $set:{paymentStatus:status},
+          $push:{students:studId}}
+          );
+
+          if(payment.modifiedCount>0){
+            console.log('modifiedcount blk ok');
+            return payment
+          }
+      }catch (error) {
+            console.error('Error occured:', error);
+            throw error; // or handle the error appropriately
+          }
+
+    }
+
     return{
         createCourse,
         fetchCourse,
         fetchCourseData,
         fetchTutorCourses,
         fetchCourseDetails,
+        insertTutorial,
+        coursePayment,
     }
 }

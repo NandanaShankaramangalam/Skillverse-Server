@@ -42,6 +42,13 @@ const courseSchema = new Schema<Course>({
     students : {
         type : [String],
     },
+    tutorial : {
+        type : [Object]
+    },
+    // paymentStatus : {
+    //     type : Boolean,
+    //     default : false
+    // }
 })
 
 export const courseModel: MongoDBCourse = mongoose.connection.model<Document & Course>('course', courseSchema);

@@ -9,4 +9,6 @@ export interface Course {
     tutId : string;
     status ?: boolean;
     students ?: [string];
+    tutorial ?:[{video:string,thumbnail:string,title:string,description:string,}];
+    // paymentStatus ?: boolean;
 }

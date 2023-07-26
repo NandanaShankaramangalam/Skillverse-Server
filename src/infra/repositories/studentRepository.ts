@@ -20,6 +20,8 @@ export type studentRepository = {
     unblockStudents(id:string):Promise<student|UpdateResult|void>;
     fetchPersonalInfo(id:string):Promise<student|null>;
     updateInfo(fname:string,lname:string,username:string,email:string,id:string):Promise<student|UpdateResult|void>;
+    coursePurchased(courseId:string,status:boolean,studId:string): Promise< student|void|UpdateResult >;
+    // courseExist(studId:string,courseId:string): Promise<boolean|null>;
 }
 
 export const studentRepositoryImpl = (studentModel:MongoDBUser):studentRepository=>{
@@ -86,7 +88,23 @@ export const studentRepositoryImpl = (studentModel:MongoDBUser):studentRepositor
         console.log('modifiedcount blk ok');
         return result
       } 
+    }    
+
+    //Course Purchased
+    const coursePurchased = async(courseId:string,status:boolean,studId:string): Promise<student|void|UpdateResult > =>{
+        const result = await studentModel.updateOne({_id : new ObjectId(studId)},{$push:{courses:{courseId:courseId,paymentStatus:status}}})
+        if(result.modifiedCount>0){
+            console.log('modifiedcount unblk ok');
+            return result
+          } 
     }
+
+    //CourseId Check
+    // const courseExist = async(studId:string, courseId:string): Promise<boolean|null>=>{
+    //     const result = await studentModel.findOne({ _id:new ObjectId(studId), "courses.courseId": courseId })
+        
+    // }
+    
     return{
         create,
         findByEmail,
@@ -94,6 +112,8 @@ export const studentRepositoryImpl = (studentModel:MongoDBUser):studentRepositor
         blockStudents,
         unblockStudents,
         fetchPersonalInfo,
-        updateInfo
+        updateInfo,
+        coursePurchased,
+        // courseExist,
     }
 }

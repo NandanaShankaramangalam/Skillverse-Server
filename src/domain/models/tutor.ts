@@ -7,13 +7,16 @@ export interface tutor{
     password: string,
     role ?: string,
     status?:boolean,
-    fileLocation?:string,
+    niche?:string,
+    profileLocation?:string,
+    bannerLocation?:string,
     description?:string,
     block?:boolean
 }
 
 export interface tutorProfile{
     _id : string,
-    fileLocation?:string,
+    bannerLocation?:string,
+    profileLocation?:string,
     description?:string,
 }

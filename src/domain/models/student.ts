@@ -7,4 +7,5 @@ export interface student{
     role?: string,
     status?:boolean,
     block?:boolean,
+    courses ?: [{courseId:string,paymentStatus:boolean}]
 }

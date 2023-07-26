@@ -179,11 +179,12 @@ export const unblockTutor = async(req:Request,res:Response)=>{
 //Add Category
 export const addCategory = async(req:Request,res:Response)=>{
     console.log('Add cate rqbdy = ',req.body);
-    const category = req.body.category;
-    const subcate = req.body.subcategory;
-    const subcateArray = subcate.split(',');
+    
+    // const subcate = req.body.subcategory;
+    // const subcateArray = subcate.split(',');
     try{
-        const cateData = await createCategory(categoryRepository)(category,subcateArray)
+        const category = req.body.category;
+        const cateData = await createCategory(categoryRepository)(category)
         if(cateData){
             res.status(201).json({message:'Category added succesfully',cateData})
         }
@@ -198,13 +199,14 @@ export const addCategory = async(req:Request,res:Response)=>{
 //Fetch Category Data
 export const showCategory = async(req:Request,res:Response)=>{
     try{
-        console.log('okkkkkkkkkkkkkkkkkkkkkkk');
-        
+        // console.log('okkkkkkkkkkkkkkkkkkkkkkk');
+             
         const cateData = await fetchCategoryData(categoryRepository)();
         
         if(cateData){
             
-            const newArray = cateData.map(obj=>{return {...obj,subcategory:obj.subcategory.join()}})
+            // const newArray = cateData.map(obj=>{return {...obj,subcategory:obj.subcategory.join()}})
+            const newArray = cateData.map(obj=>{return {...obj}})
             console.log('kk',newArray);
             res.json({success:'Category data fetching successful',newArray});
         }else{

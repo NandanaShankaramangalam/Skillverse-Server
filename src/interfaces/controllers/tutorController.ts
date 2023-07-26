@@ -1,3 +1,4 @@
+import { category } from './../../domain/models/category';
 import {  courseRepositoryImpl } from './../../infra/repositories/courseRepository';
 import { categoryRepository, categoryRepositoryImpl } from './../../infra/repositories/categoryRepository';
 import { Request,Response } from "express";
@@ -14,6 +15,9 @@ import { courseModel } from '../../infra/database/courseModel';
 import { tutor } from '../../domain/models/tutor';
 import { courseList } from '../../app/usecases/tutor/showCourses';
 import { fetchCourseDetails } from '../../app/usecases/tutor/courseDetails';
+import { classUpload } from '../../app/usecases/tutor/classUpload';
+import { profileEdit } from '../../app/usecases/tutor/editProfile';
+import { fetchSubcategory } from '../../app/usecases/tutor/fetchSubcategory';
 const jwt=require('jsonwebtoken');
 
 const JWT_SECRET='your-secret-key';  
@@ -72,7 +76,7 @@ export const tutorLogin = async(req:Request,res:Response)=>{
                 // }
                 // const {password,...tutor} = tutorExist;
                 const {...tutor} = tutorExist;
-                console.log('tootr=',tutor);
+                // console.log('tootr=',tutor);
                 
                 const token=jwt.sign(payload,JWT_SECRET);
                 res.json({ success: "Login successful", tutor,token});
@@ -100,9 +104,9 @@ export const videoUpload = async(req:Request,res:Response)=>{
 export const addProfile = async(req:Request,res:Response)=>{
     console.log('profile=',req.body);
     try{
-      const {fileLocation,description,tutId} = req.body;
-      const profileData = await profileAdd(tutorRepository)(fileLocation,description,tutId);
-      console.log(profileData);
+      const {profileLocation,bannerLocation,description,niche,tutId} = req.body;
+      const profileData = await profileAdd(tutorRepository)(profileLocation,bannerLocation,description,niche,tutId);
+    //   console.log(profileData);
       if(profileData){
         res.json({message:'Tutor Profile Added',isBlocked:true})
     }else{
@@ -115,10 +119,14 @@ export const addProfile = async(req:Request,res:Response)=>{
 
 //Show Profile
 export const showProfile = async(req:Request,res:Response)=>{
+    console.log('aaa');
+    
    console.log('tut id=',req.params.tutId);
    try{
      const tutId = req.params.tutId;
      const profileData = await fetchProfileData(tutorRepository)(tutId)
+     console.log('prof data =',profileData);
+     
      if(profileData){
         res.json({success:'Profile data fetching successful',profileData});
     }else{
@@ -129,22 +137,58 @@ export const showProfile = async(req:Request,res:Response)=>{
     }  
 }
 
+//Edit Profile
+export const editProfile = async(req:Request,res:Response)=>{
+    try{
+        console.log('tut id=',req.params.tutId);
+        console.log('datssssss=',req.body);
+        const {profileLocation,bannerLocation,description,niche,tutId} = req.body;
+        const profileData = await profileEdit(tutorRepository)(profileLocation,bannerLocation,description,niche,tutId);
+        // console.log('pro=',profileData);
+        if(profileData){
+          res.json({message:'Tutor Profile Edit Success',isBlocked:true})
+      }else{
+          res.json({message:'Tutor Profile Edit Failed!'})
+      }
+    }catch(error){
+        res.status(500).json({ message: "Internal server error" });
+    } 
+}
+
 //Show Category
 export const showCategory = async(req:Request,res:Response)=>{
     try{
-        console.log('okkkkkkkkkkkkkkkkkkkkkkk');
+        // console.log('okkkkkkkkkkkkkkkkkkkkkkk');
         
         const cateData = await fetchCategoryData(categoryRepository)();
         
         if(cateData){
             
-            // const newArray = cateData.map(obj=>{return {...obj,subcategory:obj.subcategory.join()}})
-            const newArray = cateData.map(obj=>{return {...obj,subcategory:obj.subcategory}})
+         
+            const newArray = cateData.map(obj=>{return {...obj}})
+            // const newArray = cateData.map(obj=>{return {...obj,subcategory:obj.subcategory}})
             // console.log('kk',newArray);
             res.json({success:'Category data fetching successful',newArray});
         }else{
             res.json({ invalid: "No category data available!" });
         }  
+    }catch(error){
+        res.status(500).json({ message: "Internal server error" });
+    }  
+}
+
+//Show Subcategory
+export const showSubcategory = async(req:Request,res:Response)=>{
+    try{
+     const category = req.params.cat;
+     console.log('catt=',category);
+     const subCategory = await fetchSubcategory(categoryRepository)(category);
+     console.log('subb=',subCategory);
+     if(subCategory){
+        res.json({success:'Subcategories fetch successful',subCategory});
+       }else{
+        res.json({ invalid: "Subcategories fetch failed!" });
+       }  
     }catch(error){
         res.status(500).json({ message: "Internal server error" });
     }  
@@ -175,7 +219,10 @@ export const createCourse = async(req:Request,res:Response)=>{
 //Show Courses
  export const showCourses = async(req:Request,res:Response)=>{
     try{
-        const courseData = await courseList(courseRepository)();
+        const tutId = req.params.tutId;
+        console.log('new tutid=',tutId);
+        
+        const courseData = await courseList(courseRepository)(tutId);
         console.log('costut=',courseData);
         if(courseData){
             res.json({success:'Course fetching successful',courseData});
@@ -187,7 +234,7 @@ export const createCourse = async(req:Request,res:Response)=>{
         res.status(500).json({ message: "Internal server error" });
     } 
  }
-
+  
  //Show Course Details
  export const showCourseDetails = async(req:Request,res:Response)=>{
     try{
@@ -205,4 +252,24 @@ export const createCourse = async(req:Request,res:Response)=>{
     }catch(error){
         res.status(500).json({ message: "Internal server error" });
     } 
+ }
+
+ //Upload class
+ export const uploadClass = async(req:Request,res:Response)=>{
+    try{
+      const {videoLocation,thumbnailLocation,title,description,courseId} = req.body;
+      console.log('title=',title);
+      console.log('vdo=',videoLocation);
+      const tutorial = await classUpload(courseRepository)(videoLocation,thumbnailLocation,title,description,courseId);
+      console.log('tutorial=',tutorial);
+      if(tutorial){
+        res.json({success:'Tutorial upload successful',tutorial});
+    }else{
+        res.json({ invalid: "Tutorial upload failed!" });
+    } 
+      
+      
+    }catch(error){
+        res.status(500).json({ message: "Internal server error" });
+    }
  }

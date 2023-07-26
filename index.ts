@@ -14,6 +14,7 @@ import {studentRouter} from './src/interfaces/routes/studentRoutes';
 
 import { db } from './src/infra/database/config';
 import { errorHandler} from './src/utils/errorHandler';
+import { chatRouter } from './src/interfaces/routes/chatRoutes';
 require('dotenv').config();
 
 // Multer configuration
@@ -42,3 +43,4 @@ app.use(cors({
 app.use('/',studentRouter);
 app.use('/tutor',tutorRouter);
 app.use('/admin',adminRouter);
+app.use('/chat',chatRouter);

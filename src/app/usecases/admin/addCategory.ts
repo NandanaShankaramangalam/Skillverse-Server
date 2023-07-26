@@ -2,11 +2,13 @@
 import { categoryRepository } from "../../../infra/repositories/categoryRepository";
 import { category } from "../../../domain/models/category";
 
-export const createCategory = (categoryRepository:categoryRepository)=>async(category:string,subcategory:string[]):Promise<category|null>=>{
+export const createCategory = (categoryRepository:categoryRepository)=>async(category:string):Promise<category|null>=>{
+    console.log('okk'); 
     const newCategory : category = {
         category,
-        subcategory
     }
-    const createdCategory : category|null = await categoryRepository.addCategory(newCategory);
+    const createdCategory = await categoryRepository.addCategory(newCategory);
+    console.log('ccc=',createdCategory);
+    
     return createdCategory;
 }

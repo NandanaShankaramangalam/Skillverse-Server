@@ -1,20 +1,21 @@
 import { Request,Response ,NextFunction} from "express";
-import jwt, { JwtPayload } from 'jsonwebtoken'
+import jwt from 'jsonwebtoken';
 
 interface Auth{
     iat : number,
     exp : number
 }
-export const  studentAuth=(req:Request,res:Response,next:NextFunction)=>{
+
+export const  tutorAuth=(req:Request,res:Response,next:NextFunction)=>{
     try{
-        let studToken = req.headers.studToken;
+        let tutToken = req.headers.tutToken;
         let JWT_SECRET='your-secret-key';
-        if(studToken){
+        if(tutToken){
             
             
-            studToken=studToken.toString()
-            studToken=JSON.parse(studToken).token as string
-            let decoded=jwt.verify(studToken,JWT_SECRET) as Auth
+            tutToken=tutToken.toString()
+            tutToken=JSON.parse(tutToken).token as string
+            let decoded=jwt.verify(tutToken,JWT_SECRET) as Auth
             const currentTimestamp=Math.floor(Date.now()/1000);
             const isTokenExpired = decoded.exp < currentTimestamp;
             if(isTokenExpired){

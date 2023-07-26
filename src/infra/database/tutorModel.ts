@@ -35,12 +35,18 @@ const tutorSchema = new Schema<tutor>({
         type : 'boolean',
         default : true
     },
-    fileLocation: {
+    profileLocation: {
+        type : 'string',
+    },
+    bannerLocation: {
         type : 'string',
     },
     description:{
         type : 'string',
-    }
+    },
+    niche:{
+        type : 'string',
+    },
 })
 
 export const tutorModel: MongoDBTutor = mongoose.connection.model<Document<any, any, any> & tutor>('tutor', tutorSchema);

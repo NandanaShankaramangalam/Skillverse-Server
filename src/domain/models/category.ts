@@ -1,5 +1,6 @@
 export interface category{
   category:string;
-  subcategory:string[];
+  subcategory?:string[];
   status? : boolean;
 }
+
