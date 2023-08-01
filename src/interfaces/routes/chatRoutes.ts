@@ -1,7 +1,8 @@
 import { Router } from "express";
-import { accessChat, fetchChat } from "../controllers/chatController";
+import { accessChat, fetchStudentChat, fetchTutorChat } from "../controllers/chatController";
 
 export const chatRouter = Router();
 
 chatRouter.post('/access-chat',accessChat);
-chatRouter.get('/fetch-chat',fetchChat);
+chatRouter.get('/student-chat/:studId',fetchStudentChat);
+chatRouter.get('/tutor-chat/:tutId',fetchTutorChat);

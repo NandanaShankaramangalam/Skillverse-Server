@@ -32,7 +32,7 @@ const addCategory = async(category:category):Promise<category | null>=>{
 //Fetch category data
 const findCategory = async():Promise<category[]> =>{
     const category = await categoryModel.find();
-    console.log('catttttttttttt=',category); 
+    // console.log('catttttttttttt=',category); 
     return category.map((cate) => cate.toObject());
 }
 

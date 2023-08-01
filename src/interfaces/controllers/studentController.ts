@@ -1,3 +1,4 @@
+import { reviewRepository, reviewRepositoryImpl } from './../../infra/repositories/reviewRepository';
 import { courseRepository, courseRepositoryImpl } from './../../infra/repositories/courseRepository';
 import {  categoryRepositoryImpl } from './../../infra/repositories/categoryRepository';
 import { loginStudent } from './../../app/usecases/student/logStudent';
@@ -19,6 +20,13 @@ import { fetchCourse } from '../../app/usecases/student/fetchCourseDetails';
 import { coursePayment } from '../../app/usecases/student/payment';
 import { coursePurchased } from '../../app/usecases/student/coursePurchased';
 import { fetchStudentData } from '../../app/usecases/student/fetchStudentData';
+import { reviewModel } from '../../infra/database/reviewModel';
+import { postReviews } from '../../app/usecases/student/postReviews';
+import { fetchReview } from '../../app/usecases/student/fetchReviews';
+import mongoose from 'mongoose';
+import { courseBookmark } from '../../app/usecases/student/courseBookmark';
+import { removeCourseBookmark } from '../../app/usecases/student/removeBookmark';
+import { getSavedCourses } from '../../app/usecases/student/fetchBookmarkedCourses';
 
 
 // const JWT_SECRET="sdfghjlkj345678()fgjhkjhyftr[];dfghjhdfhggddfghghfdf3456";
@@ -30,16 +38,18 @@ const catDb = categoryModel;
 const categoryRepository = categoryRepositoryImpl(catDb);
 
 const courseDb = courseModel;
-const courseRepository = courseRepositoryImpl(courseDb)
+const courseRepository = courseRepositoryImpl(courseDb);
 
+const reviewDb = reviewModel;
+const reviewRepository = reviewRepositoryImpl(reviewDb);
 //Student Registration
 export const studentRegister = async(req:Request,res:Response)=>{
     console.log('hii',req.body);
     
-    const {fname,lname,username,email,password} = req.body;
+    const {fname,lname,username,email,password,isGoogle} = req.body;
 
     try{
-        const student = await registerStudent(studentRepository)(fname,lname,username,email,password);
+        const student = await registerStudent(studentRepository)(fname,lname,username,email,password,isGoogle);
         if(student){
             res.status(201).json({message:'Registration successful',student})
         }
@@ -62,13 +72,20 @@ export const studentRegister = async(req:Request,res:Response)=>{
 export const studentLogin = async(req:Request,res:Response)=>{
     console.log('req--',req.body);
     const {email,password}  = req.body;
+    console.log('email=',email);
+    console.log('password=',password);
+    
 
     const expirationTime = Math.floor(Date.now() / 1000) + 1 * 60 * 60;
     const payload = {
         exp: expirationTime,
       };
     try{
+        console.log('kkkk');
+        
         const studentExist: student|null |object = await loginStudent(studentRepository)(email, password);
+        console.log('studexrt=',studentExist);
+        
         if(studentExist  && 'block' in studentExist && studentExist?.block === true){
             res.json({ block: "You are blocked!"});  
         }
@@ -83,6 +100,7 @@ export const studentLogin = async(req:Request,res:Response)=>{
             //     email: studentExist.email,
             // }
             const {...student} = studentExist
+            console.log('kk=',student);
             
             const token=jwt.sign(payload,JWT_SECRET);
             // res.status(200).json({ success: "Login successful", student , token});
@@ -271,3 +289,101 @@ export const fetchStudentDetails = async(req:Request,res:Response)=>{
         res.status(500).json({ message: "Internal server error" });
     } 
 }
+
+//Post Review
+export const postReview = async(req:Request,res:Response)=>{
+    try{ 
+        console.log('rev body=',req.body);
+        
+        const {review} = req.body;
+        const courseId = req.params.courseId;
+        const studId = req.params.studId;
+        const studid= new mongoose.Types.ObjectId(studId)
+        const postedReview = await postReviews(reviewRepository)(review,courseId,studid);
+        if(postedReview){
+            res.status(201).json({message:'Review added succesfully',postedReview})
+        }
+        else{
+            res.status(401).json({message:'Invalid datas'})
+        }
+    }catch(error){
+        console.log('err=',error);
+        
+        res.status(500).json({ message: "Internal server error" });
+    } 
+}    
+  
+//Fetch Reviews
+export const fetchReviews = async(req:Request,res:Response)=>{
+    try{
+        const courseId = req.params.courseId;
+        const postedReviews = await fetchReview(reviewRepository)(courseId);
+        if(postedReviews){
+            res.status(201).json({message:'Review fetched succesfully',postedReviews}) 
+        }
+        else{
+            res.status(401).json({message:'Invalid datas'})
+        }
+
+    }catch(error){
+        console.log("err=",error);
+        
+        res.status(500).json({ message: "Internal server error" });
+    } 
+}
+
+//Bookmark courses
+export const bookmarkCourses = async(req:Request,res:Response)=>{
+    try{
+     const courseId = req.params.courseId;
+     const studId = req.params.studId;
+     const bookmark = await courseBookmark(courseRepository)(courseId,studId);
+     if(bookmark){
+        res.status(201).json({message:'Course bookmarked succesfully',bookmark}) 
+        }
+        else{
+            res.status(401).json({message:'Invalid datas'})
+        }
+    }catch(error){
+        console.log("err=",error);
+        
+        res.status(500).json({ message: "Internal server error" });
+    } 
+}
+
+//Remove Bookmarked Courses
+export const removeBookmarkedCourses = async(req:Request,res:Response)=>{
+    try{
+     const courseId = req.params.courseId;
+     const studId = req.params.studId;
+     const bookmark = await removeCourseBookmark(courseRepository)(courseId,studId);
+     if(bookmark){
+        res.status(201).json({message:'Course bookmark removed succesfully',bookmark}) 
+        }
+        else{
+            res.status(401).json({message:'Invalid datas'})
+        }
+    }catch(error){
+        console.log("err=",error);
+        
+        res.status(500).json({ message: "Internal server error" });
+    } 
+}
+
+//Fetch BookmarkedCourses
+// export const fetchSavedCourses = async(req:Request,res:Response)=>{
+//     try{
+//      const studId = req.params.studId;;
+//      const bookmarkedCourses = await getSavedCourses(courseRepository)(studId);
+//      if(bookmarkedCourses){
+//         res.status(201).json({message:'Fetch all bookmarked courses succesfully',bookmarkedCourses}) 
+//     }
+//     else{
+//         res.status(401).json({message:'Invalid datas'})
+//     }
+//     }catch(error){
+//         console.log("err=",error);
+        
+//         res.status(500).json({ message: "Internal server error" });
+//     } 
+// }

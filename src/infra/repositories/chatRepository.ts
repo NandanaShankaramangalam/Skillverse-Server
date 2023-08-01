@@ -5,7 +5,8 @@ import { MongoDBChat, chatModel } from './../database/chatModel';
 
 export type chatRepository = {
   createChat : (studId:string,tutId:string) => Promise<Chat | Chat[] | null>;
-  getAllChats : (studId:string,tutId:string) => Promise<Chat | Chat[] | null>;
+  getAllStudentChats : (studId:string) => Promise<Chat | Chat[] | null>;
+  getAllTutorChats : (tutId:string) => Promise<Chat | Chat[] | null>;
 }
 export const chatRepositoryImpl = (chatModel:MongoDBChat):chatRepository=>{
  
@@ -20,8 +21,8 @@ export const chatRepositoryImpl = (chatModel:MongoDBChat):chatRepository=>{
                     {tutor:tutid}
                 ]
             }).populate("student","-password").populate("tutor","-password").populate("latestMessage");
-            console.log('ischat=',isChat);
-        if(isChat){
+            // console.log('ischat=',isChat);
+        if(isChat.length>0){
             return isChat
         }
         else{
@@ -40,26 +41,47 @@ export const chatRepositoryImpl = (chatModel:MongoDBChat):chatRepository=>{
           }
     }
 
-    //Get all chats
-    const getAllChats = async(studId:string,tutId:string):Promise<Chat | Chat[] | null>=>{
+    //Get all student chats
+    const getAllStudentChats = async(studId:string):Promise<Chat | Chat[] | null>=>{
         try{
             const studid= new mongoose.Types.ObjectId(studId)
-            const tutid= new mongoose.Types.ObjectId(tutId)
-            const chats=chatModel.find({
-                $and:[
-                    {student:studid},
-                    {tutor:tutid}
-                ]
-            }).populate("student","-password").populate("tutor","-password").populate("latestMessage").sort({updatedAt:-1});
+            // console.log('sid=',studid);
+            
+            // const tutid= new mongoose.Types.ObjectId(tutId)
+            const chats=chatModel.find(
+                // $and:[
+                    {student:studid}
+                    // {tutor:tutid}
+                // ]
+            ).populate("tutor","-password").populate("latestMessage").sort({updatedAt:-1});
              return chats
         }catch (error) {
-            console.error('Error creating course:', error);
+            console.error('Error creating course:', error);  
             throw error; // or handle the error appropriately
           }
     }
     
+    //Get all tutor chats
+    const getAllTutorChats = async(tutId:string):Promise<Chat | Chat[] | null>=>{
+        try{
+            const tutid= new mongoose.Types.ObjectId(tutId)
+            // console.log('sid=',tutid);
+            
+            // const tutid= new mongoose.Types.ObjectId(tutId)
+            const chats=chatModel.find(
+    
+                    {tutor:tutid}
+                   
+            ).populate("student","-password").populate("latestMessage").sort({updatedAt:-1});
+             return chats
+        }catch (error) {
+            console.error('Error creating course:', error);  
+            throw error; // or handle the error appropriately
+          }
+    }
     return{
         createChat,
-        getAllChats,
+        getAllStudentChats,
+        getAllTutorChats,
     }
 }

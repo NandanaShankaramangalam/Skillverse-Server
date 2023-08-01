@@ -12,7 +12,10 @@ export type courseRepository = {
     fetchTutorCourses : (tutId:string) => Promise<Course[]>;
     fetchCourseDetails : (id:string) => Promise<Course | null>;
     insertTutorial : (videoLocation:string,thumbnailLocation:string,title:string,description:string,courseId:string) => Promise<Course | null | UpdateResult>;
-    coursePayment : (id:string,status:boolean,studId:string) => Promise<Course | void | UpdateResult>
+    coursePayment : (id:string,status:boolean,studId:string) => Promise<Course | void | UpdateResult>;
+    bookmarkCourse : (courseId:string,studId:string) => Promise<Course | void | UpdateResult>;
+    removeBookmark : (courseId:string,studId:string) => Promise<Course | void | UpdateResult>;
+    // fetchSavedCourses : (studId:string) => Promise<Course[]>,
 }    
 
 export const courseRepositoryImpl = (courseModel:MongoDBCourse):courseRepository=>{
@@ -109,6 +112,57 @@ export const courseRepositoryImpl = (courseModel:MongoDBCourse):courseRepository
 
     }
 
+    //Bookmark a course
+   const bookmarkCourse = async(courseId:string,studId:string):Promise<Course | void | UpdateResult>=>{
+    try{
+      const bookmark = await courseModel.updateOne({_id:new ObjectId(courseId)},
+      {$push:{bookmarks:studId}});
+      if(bookmark.modifiedCount>0){
+        return bookmark
+      }
+    }catch (error) {
+            console.error('Error occured:', error);
+            throw error; // or handle the error appropriately
+          }
+   }
+
+   //Remove Bookmareked Courses
+   const removeBookmark = async(courseId:string,studId:string):Promise<Course | void | UpdateResult>=>{
+    try{
+      const bookmark = await courseModel.updateOne({_id:new ObjectId(courseId)},
+      {$pull:{bookmarks:studId}});
+      if(bookmark.modifiedCount>0){
+        return bookmark
+      }
+    }catch (error) {
+      console.error('Error occured:', error);
+      throw error; // or handle the error appropriately
+    }
+   }
+
+  //  Fetch all bookmarked courses
+  //  const fetchSavedCourses = async(studId:string):Promise<Course[]|null>=>{
+  //   try{
+  //    const courses = await courseModel.aggregate([
+  //     {
+  //       $match:{
+  //         bookmarks:{$in:[studId]}
+  //       }
+  //     },
+  //     // $lookup:{
+  //     //   from:'students',
+  //     //   localField:'studId',
+  //     //   foreignField:'studId',
+  //     //   as:'Students'
+  //     // }
+  //    ])
+  //    return courses
+  //   }catch (error) {
+  //     console.error('Error occured:', error);
+  //     throw error; // or handle the error appropriately
+  //   }
+  //  }
+
     return{
         createCourse,
         fetchCourse,
@@ -117,5 +171,8 @@ export const courseRepositoryImpl = (courseModel:MongoDBCourse):courseRepository
         fetchCourseDetails,
         insertTutorial,
         coursePayment,
+        bookmarkCourse,
+        removeBookmark,
+        // fetchSavedCourses,
     }
 }

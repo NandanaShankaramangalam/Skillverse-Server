@@ -45,6 +45,9 @@ const courseSchema = new Schema<Course>({
     tutorial : {
         type : [Object]
     },
+    bookmarks : {
+        type : [String]
+    }
     // paymentStatus : {
     //     type : Boolean,
     //     default : false

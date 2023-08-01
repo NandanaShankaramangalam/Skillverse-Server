@@ -18,4 +18,4 @@ tutorRouter.get('/get-subcategory/:cat',showSubcategory);
 tutorRouter.post('/create-course',createCourse);
 tutorRouter.get('/course-list/:tutId',showCourses);
 tutorRouter.get('/course-details/:courseId',showCourseDetails);
-tutorRouter.post('/upload-class',uploadClass);
+tutorRouter.post('/upload-class',uploadClass);  

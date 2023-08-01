@@ -20,11 +20,15 @@ export const  tutorAuth=(req:Request,res:Response,next:NextFunction)=>{
             const isTokenExpired = decoded.exp < currentTimestamp;
             if(isTokenExpired){
                 res.json({message:'expired'})
+                console.log('expired');
+                
             }else{
                 next()
+                console.log('next');
             }
            }else{
             res.json({message:'unauthorized'})
+            console.log('unauth');
            }
     
     }catch(err){

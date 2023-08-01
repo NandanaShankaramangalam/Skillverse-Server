@@ -1,5 +1,6 @@
 import { ObjectId } from 'mongodb';
 export interface tutor{
+    _id?:string,
     fname: string,
     lname: string,
     username: string,
