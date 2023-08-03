@@ -27,7 +27,15 @@ import mongoose from 'mongoose';
 import { courseBookmark } from '../../app/usecases/student/courseBookmark';
 import { removeCourseBookmark } from '../../app/usecases/student/removeBookmark';
 import { getSavedCourses } from '../../app/usecases/student/fetchBookmarkedCourses';
-
+import { getPurchasedCourses } from '../../app/usecases/student/fetchPurchasedCourses';
+import { CheckStudent } from '../../app/usecases/student/CheckStudent';
+import { passwordReset } from '../../app/usecases/student/passwordReset';
+import { courseRating } from '../../app/usecases/student/rating';
+import { tutorModel } from '../../infra/database/tutorModel';
+import { tutorRepositoryImpl } from '../../infra/repositories/tutorRepository';
+import { getTutorsList } from '../../app/usecases/student/fetchTutors';
+import { fetchProfileData } from '../../app/usecases/tutor/fetchProfile';
+const otpSender = require('node-otp-sender');
 
 // const JWT_SECRET="sdfghjlkj345678()fgjhkjhyftr[];dfghjhdfhggddfghghfdf3456";
 const JWT_SECRET='your-secret-key';
@@ -42,6 +50,9 @@ const courseRepository = courseRepositoryImpl(courseDb);
 
 const reviewDb = reviewModel;
 const reviewRepository = reviewRepositoryImpl(reviewDb);
+
+const tutorDb = tutorModel;
+const tutorRepository = tutorRepositoryImpl(tutorDb);
 //Student Registration
 export const studentRegister = async(req:Request,res:Response)=>{
     console.log('hii',req.body);
@@ -76,7 +87,7 @@ export const studentLogin = async(req:Request,res:Response)=>{
     console.log('password=',password);
     
 
-    const expirationTime = Math.floor(Date.now() / 1000) + 1 * 60 * 60;
+    const expirationTime = Math.floor(Date.now() / 1000) + 2 * 60 * 60 * 1000;
     const payload = {
         exp: expirationTime,
       };
@@ -371,19 +382,155 @@ export const removeBookmarkedCourses = async(req:Request,res:Response)=>{
 }
 
 //Fetch BookmarkedCourses
-// export const fetchSavedCourses = async(req:Request,res:Response)=>{
-//     try{
-//      const studId = req.params.studId;;
-//      const bookmarkedCourses = await getSavedCourses(courseRepository)(studId);
-//      if(bookmarkedCourses){
-//         res.status(201).json({message:'Fetch all bookmarked courses succesfully',bookmarkedCourses}) 
-//     }
-//     else{
-//         res.status(401).json({message:'Invalid datas'})
-//     }
-//     }catch(error){
-//         console.log("err=",error);
+export const fetchSavedCourses = async(req:Request,res:Response)=>{
+    try{
+     const studId = req.params.studId;
+     const bookmarkedCourses = await getSavedCourses(courseRepository)(studId);
+    //  console.log('jj=',bookmarkedCourses);
+     
+     if(bookmarkedCourses){
+        res.status(201).json({message:'Fetch all bookmarked courses succesfully',bookmarkedCourses}) 
+    }
+    else{
+        res.status(401).json({message:'Invalid datas'})
+    }
+    }catch(error){
+        console.log("err=",error);
         
-//         res.status(500).json({ message: "Internal server error" });
-//     } 
-// }
+        res.status(500).json({ message: "Internal server error" });
+    } 
+}
+
+//Fetch Purchased Courses
+export const fetchPurchasedCourses = async(req:Request,res:Response)=>{
+    try{
+     const studId = req.params.studId;
+     const purchasedCourses = await getPurchasedCourses(courseRepository)(studId);
+    //  console.log('pur=',purchasedCourses);
+     
+     if(purchasedCourses){
+        res.status(201).json({message:'Fetch all bookmarked courses succesfully',purchasedCourses}) 
+    }
+    else{
+        res.status(401).json({message:'Invalid datas'})
+    }
+    }catch(error){
+        console.log("err=",error);
+        
+        res.status(500).json({ message: "Internal server error" });
+    } 
+}
+
+//Student Check To Send OTP
+export const checkStudForOtp = async(req:Request,res:Response)=>{
+    try{
+        const email = req.body.email;
+        console.log('em=',email);
+        const emailCheck = await CheckStudent(studentRepository)(email);
+        if(emailCheck){
+            const senderEmail = `${process.env.REACT_APP_SENDER_EMAIL}`;
+            const senderPassword = `${process.env.REACT_APP_SENDER_PASSWORD}`;
+            const recipientEmail = email;
+            const subject = 'OTP Verification';
+            otpSender(senderEmail, senderPassword, recipientEmail, subject)
+                .then((response:any) => {
+                    console.log(response);
+                    res.status(201).json({message:'Email exist',emailExist:true,otp:response.otp}) 
+                })
+                .catch((error:any) => {
+                    console.error('Error:', error);
+                });
+
+            
+        }
+        else{
+            res.json({message:'Email doesnot exist!',emaiExist:false}) 
+        }
+        
+    }catch(error){
+        console.log("err=",error);
+        
+        res.status(500).json({ message: "Internal server error"});
+    } 
+}
+
+//Reset Password
+export const resestPassword = async(req:Request,res:Response)=>{
+    try{
+     const {email,password} = req.body;
+     console.log('email=',email);
+     console.log('password=',password);
+     const result = await passwordReset(studentRepository)(email,password);
+     if(result){
+        res.status(201).json({message:'Password reset successfull',result}) 
+    }
+    else{
+        res.json({message:'Invalid datas'})
+    }
+    }catch(error){
+        console.log("err=",error);
+        
+        res.status(500).json({ message: "Internal server error"});
+    } 
+} 
+
+//Rating
+export const rating = async(req:Request,res:Response)=>{
+    try{
+     const {selectedValue,studId,courseId} = req.body;
+     console.log('sele=',selectedValue);
+     console.log('cid=',courseId);
+     console.log('cid=',studId);
+     
+     const ratingValue = parseInt(selectedValue);
+     const result = await courseRating(reviewRepository)(ratingValue,studId,courseId);
+     console.log('res rat=',result);
+     
+     if(result){
+        res.status(201).json({message:'Rating done',result}) 
+    }
+    else{
+        res.json({message:'Invalid datas'})
+    }
+    }catch(error){
+        console.log("err=",error);
+        
+        res.status(500).json({ message: "Internal server error"});
+    } 
+}
+
+//Fetch Tutors
+export const fetchTutors = async(req:Request,res:Response)=>{
+  try{
+   const tutorsData = await getTutorsList(tutorRepository)();
+   console.log('tu=',tutorsData);
+   if(tutorsData){
+    res.status(201).json({message:'Tutors fetch successful',tutorsData}) 
+}
+else{
+    res.json({message:'Invalid datas'})
+}
+  }catch(error){
+        console.log("err=",error);
+        
+        res.status(500).json({ message: "Internal server error"});
+    } 
+}
+
+// Show Tutor Profile
+export const showTutorProfile = async(req:Request,res:Response)=>{
+    try{
+     const tutId = req.params.tutId;
+     const tutorData = await fetchProfileData(tutorRepository)(tutId)
+     if(tutorData){
+        res.status(201).json({message:'Tutor Profile Fetch Successful',tutorData}) 
+    }
+    else{
+        res.json({message:'Invalid datas'})
+    }
+    }catch(error){
+        console.log("err=",error);
+        
+        res.status(500).json({ message: "Internal server error"});
+    } 
+}

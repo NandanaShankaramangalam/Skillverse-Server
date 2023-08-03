@@ -21,6 +21,7 @@ export type studentRepository = {
     fetchPersonalInfo(id:string):Promise<student|null>;
     updateInfo(fname:string,lname:string,username:string,email:string,id:string):Promise<student|UpdateResult|void>;
     coursePurchased(courseId:string,status:boolean,studId:string): Promise< student|void|UpdateResult >;
+    resetPassword(email:string,password:string): Promise< student|UpdateResult|void >;
     // courseExist(studId:string,courseId:string): Promise<boolean|null>;
 }
 
@@ -105,6 +106,14 @@ export const studentRepositoryImpl = (studentModel:MongoDBUser):studentRepositor
         
     // }
     
+    //Reset password
+    const resetPassword = async(email:string,password:string): Promise< student|UpdateResult|void >=>{
+        const result = await studentModel.updateOne({email:email},{$set:{password:password}});
+        if(result.modifiedCount>0){
+            console.log('Password reset successful');
+            return result
+          } 
+    }
     return{
         create,
         findByEmail,
@@ -114,6 +123,7 @@ export const studentRepositoryImpl = (studentModel:MongoDBUser):studentRepositor
         fetchPersonalInfo,
         updateInfo,
         coursePurchased,
+        resetPassword,
         // courseExist,
     }
 }

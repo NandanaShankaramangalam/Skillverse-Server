@@ -15,7 +15,8 @@ export type courseRepository = {
     coursePayment : (id:string,status:boolean,studId:string) => Promise<Course | void | UpdateResult>;
     bookmarkCourse : (courseId:string,studId:string) => Promise<Course | void | UpdateResult>;
     removeBookmark : (courseId:string,studId:string) => Promise<Course | void | UpdateResult>;
-    // fetchSavedCourses : (studId:string) => Promise<Course[]>,
+    fetchSavedCourses : (studId:string) => Promise<Course[]|null>;
+    fetchPurchasedCourses : (studId:string) => Promise<Course[]|null>;
 }    
 
 export const courseRepositoryImpl = (courseModel:MongoDBCourse):courseRepository=>{
@@ -141,27 +142,41 @@ export const courseRepositoryImpl = (courseModel:MongoDBCourse):courseRepository
    }
 
   //  Fetch all bookmarked courses
-  //  const fetchSavedCourses = async(studId:string):Promise<Course[]|null>=>{
-  //   try{
-  //    const courses = await courseModel.aggregate([
-  //     {
-  //       $match:{
-  //         bookmarks:{$in:[studId]}
-  //       }
-  //     },
-  //     // $lookup:{
-  //     //   from:'students',
-  //     //   localField:'studId',
-  //     //   foreignField:'studId',
-  //     //   as:'Students'
-  //     // }
-  //    ])
-  //    return courses
-  //   }catch (error) {
-  //     console.error('Error occured:', error);
-  //     throw error; // or handle the error appropriately
-  //   }
-  //  }
+   const fetchSavedCourses = async(studId:string):Promise<Course[]|null>=>{
+    try{
+      // console.log('sid=',studId);
+      
+     const courses = await courseModel.aggregate([
+      {
+        $match:{
+          bookmarks:{$in:[studId]}
+        }
+        // $lookup:{
+        //   from:'students',
+        //   localField:'students',
+        //   foreignField:'studId',
+        //   as:'Students'
+        // }
+      }
+     ])
+     return courses
+    }catch (error) {
+      console.error('Error occured:', error);
+      throw error; // or handle the error appropriately
+    }
+   }
+
+   //Fetch Purchased Courses
+   const fetchPurchasedCourses = async(studId:string):Promise<Course[]|null>=>{
+    const courses = await courseModel.aggregate([
+      {
+        $match:{
+          students:{$in:[studId]}
+        }
+      }
+     ])
+    return courses
+   }
 
     return{
         createCourse,
@@ -173,6 +188,7 @@ export const courseRepositoryImpl = (courseModel:MongoDBCourse):courseRepository
         coursePayment,
         bookmarkCourse,
         removeBookmark,
-        // fetchSavedCourses,
+        fetchSavedCourses,
+        fetchPurchasedCourses,
     }
 }

@@ -7,13 +7,17 @@ interface Auth{
 }
 export const  studentAuth=(req:Request,res:Response,next:NextFunction)=>{
     try{
-        let studToken = req.headers.studToken;
+        console.log('req hdr stud=',req.headers);
+        
+        let studToken = req.headers.studtoken;
+        console.log('stud tokn=',studToken);
+        
         let JWT_SECRET='your-secret-key';
         if(studToken){
             
             
             studToken=studToken.toString()
-            studToken=JSON.parse(studToken).token as string
+            // studToken=JSON.parse(studToken).token as string
             let decoded=jwt.verify(studToken,JWT_SECRET) as Auth
             const currentTimestamp=Math.floor(Date.now()/1000);
             const isTokenExpired = decoded.exp < currentTimestamp;

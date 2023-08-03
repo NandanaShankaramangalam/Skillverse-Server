@@ -12,13 +12,11 @@ const reviewSchema = new Schema<review>({
  courseId : {
     type : String
  },
-//  student : {
-//     type:string
-//  },
  studId : {
     type : mongoose.Schema.Types.ObjectId,
     ref : 'student'
- }
+ },
+
 })
 
 export const  reviewModel: MongoDBReview = mongoose.connection.model<Document & review>('review', reviewSchema);

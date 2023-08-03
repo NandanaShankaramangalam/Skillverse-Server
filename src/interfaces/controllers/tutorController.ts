@@ -1,3 +1,4 @@
+import { studentRepository, studentRepositoryImpl } from './../../infra/repositories/studentRepository';
 import { category } from './../../domain/models/category';
 import {  courseRepositoryImpl } from './../../infra/repositories/courseRepository';
 import { categoryRepository, categoryRepositoryImpl } from './../../infra/repositories/categoryRepository';
@@ -18,6 +19,8 @@ import { fetchCourseDetails } from '../../app/usecases/tutor/courseDetails';
 import { classUpload } from '../../app/usecases/tutor/classUpload';
 import { profileEdit } from '../../app/usecases/tutor/editProfile';
 import { fetchSubcategory } from '../../app/usecases/tutor/fetchSubcategory';
+import { studentModel } from '../../infra/database/studentModel';
+import { fetchStudentData } from '../../app/usecases/admin/fetchStudent';
 const jwt=require('jsonwebtoken');
 
 const JWT_SECRET='your-secret-key';  
@@ -30,7 +33,8 @@ const categoryRepository = categoryRepositoryImpl(cateDb);
 const courseDb = courseModel;
 const courseRepository = courseRepositoryImpl(courseDb);
 
-
+const studDb = studentModel;
+const studentRepository = studentRepositoryImpl(studDb);
 //Tutor Registration
 export const tutorRegister = async(req:Request,res:Response)=>{
     console.log('tut',req.body);
@@ -54,7 +58,7 @@ export const tutorLogin = async(req:Request,res:Response)=>{
     console.log('tut req=',req.body);
      try{
     const {email,password}  = req.body;
-    const expirationTime = Math.floor(Date.now() / 1000) + 1 * 60 * 60;
+    const expirationTime = Math.floor(Date.now() / 1000) + 2 * 60 * 60 * 1000;
     const payload = {
         exp: expirationTime,
       };
@@ -223,7 +227,7 @@ export const createCourse = async(req:Request,res:Response)=>{
         console.log('new tutid=',tutId);
         
         const courseData = await courseList(courseRepository)(tutId);
-        console.log('costut=',courseData);
+        // console.log('costut=',courseData);
         if(courseData){
             res.json({success:'Course fetching successful',courseData});
            }else{
@@ -242,7 +246,7 @@ export const createCourse = async(req:Request,res:Response)=>{
        console.log('ciddd=',id);
        
        const courseData = await fetchCourseDetails(courseRepository)(id);
-       console.log('hhh=',courseData);
+    //    console.log('hhh=',courseData);
        if(courseData){
         res.json({success:'Course fetching successful',courseData});
        }else{
@@ -266,9 +270,24 @@ export const createCourse = async(req:Request,res:Response)=>{
         res.json({success:'Tutorial upload successful',tutorial});
     }else{
         res.json({ invalid: "Tutorial upload failed!" });
-    } 
-      
-      
+    }   
+    }catch(error){
+        res.status(500).json({ message: "Internal server error" });
+    }
+ }
+
+ //Fetch Students
+ export const fetchStudents = async(req:Request,res:Response)=>{
+    try{
+        console.log('controller ok');
+        
+        const students = await fetchStudentData(studentRepository)();
+        if(students){
+            console.log('stdd=',students);
+            res.json({success:'Student fetch successful',students});
+        }else{
+            res.json({ invalid: "Student fetch failed!" });
+        }   
     }catch(error){
         res.status(500).json({ message: "Internal server error" });
     }

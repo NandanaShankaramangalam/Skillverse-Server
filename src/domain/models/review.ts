@@ -6,4 +6,5 @@ export interface review {
     // student ?: string,
     courseId : string,
     studId : mongoose.Types.ObjectId,
+    // studId : string,
 } 

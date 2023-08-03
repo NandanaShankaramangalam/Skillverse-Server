@@ -42,7 +42,7 @@ export const adminLogin = async(req:Request,res:Response)=>{
     console.log('reqst=',req.body);
     const {username,password} = req.body;
     
-    const expirationTime = Math.floor(Date.now() / 1000) + 1 * 60 * 60;
+    const expirationTime = Math.floor(Date.now() / 1000) + 2 * 60 * 60 *1000;
     const payload = {
         exp: expirationTime,
       };

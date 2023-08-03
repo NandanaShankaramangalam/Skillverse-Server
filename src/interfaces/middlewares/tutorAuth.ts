@@ -8,13 +8,21 @@ interface Auth{
 
 export const  tutorAuth=(req:Request,res:Response,next:NextFunction)=>{
     try{
-        let tutToken = req.headers.tutToken;
+        console.log('req.hdr=',req.headers);
+        
+        let tutToken = req.headers.tuttoken;
         let JWT_SECRET='your-secret-key';
+
+        // console.log('token=',tutToken);
+        // console.log('req.headers=',req.headers);
+        
+        
         if(tutToken){
             
+            // console.log('tokenn=',req.headers);
             
             tutToken=tutToken.toString()
-            tutToken=JSON.parse(tutToken).token as string
+            
             let decoded=jwt.verify(tutToken,JWT_SECRET) as Auth
             const currentTimestamp=Math.floor(Date.now()/1000);
             const isTokenExpired = decoded.exp < currentTimestamp;
