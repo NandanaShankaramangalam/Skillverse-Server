@@ -35,6 +35,8 @@ import { tutorModel } from '../../infra/database/tutorModel';
 import { tutorRepositoryImpl } from '../../infra/repositories/tutorRepository';
 import { getTutorsList } from '../../app/usecases/student/fetchTutors';
 import { fetchProfileData } from '../../app/usecases/tutor/fetchProfile';
+import { editReview } from '../../app/usecases/student/editReviews';
+import { deleteReview } from '../../app/usecases/student/deleteReviews';
 const otpSender = require('node-otp-sender');
 
 // const JWT_SECRET="sdfghjlkj345678()fgjhkjhyftr[];dfghjhdfhggddfghghfdf3456";
@@ -267,9 +269,10 @@ export const fetchCourseDetails = async(req:Request,res:Response)=>{
 //Payment
 export const payment = async(req:Request,res:Response)=>{
     try{
-     const {status,courseId,studId} = req.body;
-     console.log('status payment=',status,courseId);
-     const result = await coursePayment(courseRepository)(courseId,status,studId);
+     const {status,courseId,studId,fee} = req.body;
+     const fees = parseInt(fee);
+     console.log('status payment=',status,courseId,fees);
+     const result = await coursePayment(courseRepository)(courseId,status,studId,fees);
      const resultData = await coursePurchased(studentRepository)(courseId,status,studId);
      console.log('res==',result);
         if(result){
@@ -528,6 +531,34 @@ export const showTutorProfile = async(req:Request,res:Response)=>{
     else{
         res.json({message:'Invalid datas'})
     }
+    }catch(error){
+        console.log("err=",error);
+        
+        res.status(500).json({ message: "Internal server error"});
+    } 
+}
+
+//Edit Reviews
+export const editReviews = async(req:Request,res:Response)=>{
+    try{
+     const {reviewId,newReview} = req.body;
+     const reviewData = await editReview(reviewRepository)(reviewId,newReview);
+     console.log('revv=',reviewData);
+     
+     res.json({message:'Review updated successfully',reviewData})
+    }catch(error){
+        console.log("err=",error);
+        
+        res.status(500).json({ message: "Internal server error"});
+    } 
+} 
+
+//Delete Reviews 
+export const deleteReviews = async(req:Request,res:Response)=>{
+    try{
+     const {reviewId} = req.body;
+     const reviewData = await deleteReview(reviewRepository)(reviewId);
+     res.json({message:'Review updated successfully',reviewData})
     }catch(error){
         console.log("err=",error);
         

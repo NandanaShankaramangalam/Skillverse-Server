@@ -69,10 +69,10 @@ io.on("connection", (socket:any) => {
      socket.emit("connected");
     })
 
-    socket.on("disconnect", ()=> {
-        console.log('user disconnected room');
+    // socket.on("disconnect", ()=> {
+    //     console.log('user disconnected room');
         
-    })
+    // })
 
     socket.on('join chat',(room:string)=>{
         socket.join(room)
@@ -80,6 +80,8 @@ io.on("connection", (socket:any) => {
     })
 
     socket.on('new message',(newMessageReceived:newMessageReceived)=>{
+        console.log('newMessagereceived',newMessageReceived);
+        
        let chat = newMessageReceived.chat
        console.log('new message=',newMessageReceived);
        const sender=newMessageReceived.student ? newMessageReceived.student : newMessageReceived.tutor
@@ -87,12 +89,11 @@ io.on("connection", (socket:any) => {
        console.log('newMessageReceived.chat.student=',newMessageReceived.chat.student);
        
     //    if(!chat.student && !chat.tutor) return console.log("Chat.users not defiend");
-    if(sender===newMessageReceived.chat.student._id){
-        console.log('student is the sender');
-        
+    if(sender?._id===newMessageReceived.chat.student._id){
+        console.log('student is the sender'); 
         socket.in(chat.tutor._id).emit('message recieved',newMessageReceived)
     }
-    if(sender===newMessageReceived.chat.tutor._id){
+    if(sender?._id===newMessageReceived.chat.tutor._id){
         console.log('tutor is the sender');
         socket.in(chat.student._id).emit('message recieved',newMessageReceived)
     }
@@ -101,11 +102,11 @@ io.on("connection", (socket:any) => {
     //        socket.in(user._id).emit('message recieved',newMessageRecieved)
         
     
-    //    if(chat._id === newMessageReceived.student?._id) return console.log('It\'s not a dump'); 
-    //    socket.in(chat.student?._id).emit('message received',newMessageReceived);
+       if(chat._id === newMessageReceived.student?._id) return console.log('It\'s not a dump'); 
+       socket.in(chat.student?._id).emit('message received',newMessageReceived);
 
-    //    if(chat._id === newMessageReceived.tutor?._id)return console.log('It\'s a dump') ;
-    //    socket.in(chat.tutor?._id).emit('message received',newMessageReceived);
+       if(chat._id === newMessageReceived.tutor?._id)return console.log('It\'s a dump') ;
+       socket.in(chat.tutor?._id).emit('message received',newMessageReceived);
     
     
 

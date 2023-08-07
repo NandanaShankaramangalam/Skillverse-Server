@@ -11,5 +11,6 @@ export interface Course {
     students ?: [string];
     tutorial ?:[{video:string,thumbnail:string,title:string,description:string,}];
     bookmarks ?: string[];
+    stud ?: [{id:string,date:Date,month:string,fees:number}]
     // paymentStatus ?: boolean;
 }

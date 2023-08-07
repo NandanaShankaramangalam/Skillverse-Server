@@ -1,3 +1,4 @@
+import { courseRepository, courseRepositoryImpl } from './../../infra/repositories/courseRepository';
 import { categoryRepository, categoryRepositoryImpl } from './../../infra/repositories/categoryRepository';
 import { category } from './../../domain/models/category';
 import { tutorRepository, tutorRepositoryImpl } from './../../infra/repositories/tutorRepository';
@@ -23,6 +24,10 @@ import { CategoryList } from '../../app/usecases/admin/listCategory';
 import { CategoryUnlist } from '../../app/usecases/admin/unlistCategory';
 import { subCategoryAdd } from '../../app/usecases/admin/addSubcategory';
 import { categoryEdit } from '../../app/usecases/admin/editCategory';
+import { courseModel } from '../../infra/database/courseModel';
+import { fetchCatData } from '../../app/usecases/admin/fetchCatData';
+import { fetchBarData } from '../../app/usecases/admin/fetchBarData';
+
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = 'your-secret-key';
 
@@ -37,6 +42,9 @@ const tutorRepository = tutorRepositoryImpl(tutDb);
 
 const cateDb = categoryModel;
 const categoryRepository = categoryRepositoryImpl(cateDb);
+
+const courseDb = courseModel;
+const courseRepository = courseRepositoryImpl(courseDb);
 //Admin Login
 export const adminLogin = async(req:Request,res:Response)=>{
     console.log('reqst=',req.body);
@@ -289,4 +297,31 @@ export const editCategory = async(req:Request,res:Response)=>{
                               
     }
     
+}
+
+//Dashboard Data
+export const dashboardData = async(req:Request,res:Response)=>{
+    try{
+     const studData = await fetchStudentData(studentRepository)();
+     const studCount = studData?.length;
+    //  console.log('stcnt=',studData);
+     const tutData = await fetchTutorData(tutorRepository)();
+     console.log('tutdta=',tutData);
+     const tutCount = tutData?.length;
+     const tutBlockCount = tutData?.filter((obj)=>obj.status===false).length;
+     console.log('tutblco=',tutBlockCount);
+    const catData = await fetchCategoryData(categoryRepository)();
+        // console.log('catData=',catData);
+    const catCount = catData?.length;
+        // console.log('catcnt=',catCount);
+        const pieChartData = await fetchCatData(courseRepository)();
+        console.log('hhggb=',pieChartData);
+    const barData = await fetchBarData(courseRepository)();
+    console.log('baaarr=',barData);
+    
+        res.json({message:'Data fetched successfully',studCount,tutCount,catCount,tutBlockCount,pieChartData,barData});
+        
+    }catch(err){
+        console.log(err);                          
+    }
 }

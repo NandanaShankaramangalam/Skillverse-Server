@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { addCategory, addSubcategory, adminLogin, blockStudent, blockTutor, editCategory, listCategory, showCategory, showStudent, showTutor, unblockStudent, unblockTutor, unlistCategory } from '../controllers/adminController';
+import { addCategory, addSubcategory, adminLogin, blockStudent, blockTutor, dashboardData, editCategory, listCategory, showCategory, showStudent, showTutor, unblockStudent, unblockTutor, unlistCategory } from '../controllers/adminController';
 import { adminAuth } from '../middlewares/adminAuth';
 export const adminRouter = Router();
 
@@ -13,9 +13,10 @@ adminRouter.get('/tutor-data',adminAuth,showTutor);
 adminRouter.post('/block-tutor',adminAuth,blockTutor);  
 adminRouter.post('/unblock-tutor',unblockTutor); 
 
-adminRouter.post('/add-category',adminAuth,addCategory);  
+adminRouter.post('/add-category',adminAuth,addCategory);  ``
 adminRouter.get('/show-category',adminAuth,showCategory);  
 adminRouter.post('/list-category',adminAuth,listCategory);  
 adminRouter.post('/unlist-category',adminAuth,unlistCategory);  
 adminRouter.post('/add-subcategory',adminAuth,addSubcategory);  
-adminRouter.post('/edit-category',adminAuth,editCategory);  
+adminRouter.post('/edit-category',adminAuth,editCategory);
+adminRouter.get('/dashboard-details',dashboardData);  

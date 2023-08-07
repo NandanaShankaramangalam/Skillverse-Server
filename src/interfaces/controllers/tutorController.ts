@@ -21,6 +21,7 @@ import { profileEdit } from '../../app/usecases/tutor/editProfile';
 import { fetchSubcategory } from '../../app/usecases/tutor/fetchSubcategory';
 import { studentModel } from '../../infra/database/studentModel';
 import { fetchStudentData } from '../../app/usecases/admin/fetchStudent';
+import { fetchGraphData } from '../../app/usecases/tutor/fetchGraphData';
 const jwt=require('jsonwebtoken');
 
 const JWT_SECRET='your-secret-key';  
@@ -292,3 +293,42 @@ export const createCourse = async(req:Request,res:Response)=>{
         res.status(500).json({ message: "Internal server error" });
     }
  }
+
+ //Edit Tutorials
+ export const editTutorial = async(req:Request,res:Response)=>{
+    try{
+      const{courseId,newTitle,newDescription,ImgLocation,VdoLocation} = req.body;
+      console.log('cid=',courseId);
+      console.log('title=',newTitle);
+      console.log('Img=',ImgLocation);
+      console.log('Vdo=',VdoLocation);
+      console.log('Desc=',newDescription);
+      
+    }catch(error){
+        res.status(500).json({ message: "Internal server error" });
+    }
+ }
+
+ //Dashboard Data
+export const dashboardData = async(req:Request,res:Response) =>{
+    try{
+     const tutId = req.params.tutId;
+     console.log('tutu=',tutId);
+     
+     const dashData = await courseList(courseRepository)(tutId);
+     const totalCourses = dashData?.length;
+     console.log('dttd=',totalCourses);
+     
+     dashData?.map((obj)=>{console.log('okk--',obj.stud);}
+     )
+    //  console.log('dashhh=',dashData);
+     const graphData = await fetchGraphData(courseRepository)(tutId);
+     console.log('graph=',graphData);
+
+    //  const barData = await fetc
+     
+     res.json({message:'Data fetched successfully',graphData,dashData})
+    }catch(error){
+        res.status(500).json({ message: "Internal server error" });
+    }
+}

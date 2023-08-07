@@ -3,10 +3,13 @@ import { review } from "../../domain/models/review"
 import { MongoDBReview, reviewModel } from "../database/reviewModel"
 import { UpdateResult } from '../../domain/models/update';
 import { ObjectId } from 'mongodb';
+import { Delete } from '../../domain/models/delete';
 export type reviewRepository = {
   addReview(review:review) : Promise<review|null>;
   fetchAllReviews(courseId:string) : Promise<review[]|null>;
   rating(ratingValue:number,studId:string,courseId:string) : Promise<review|null|UpdateResult>;
+  editReview(reviewId:string,review:string) : Promise<review|null|UpdateResult>;
+  deleteReviews(reviewId:string) : Promise<Delete>
 }
 
 export const reviewRepositoryImpl = (reviewModel:MongoDBReview):reviewRepository=>{
@@ -54,9 +57,25 @@ export const reviewRepositoryImpl = (reviewModel:MongoDBReview):reviewRepository
        return null;
     }
 
+    //Edit Rating
+    const editReview = async(reviewId:string,review:string) : Promise<review|null|UpdateResult>=>{
+      const reviewData = await reviewModel.updateOne({_id:new ObjectId(reviewId)},{$set:{review:review}})
+      if(reviewData.modifiedCount>0){
+        return reviewData;
+     }
+     return null;
+    }
+
+    //Delete review
+    const deleteReviews = async(reviewId:string) : Promise<Delete>=>{
+      const reviewData = await reviewModel.deleteOne({_id:new ObjectId(reviewId)});
+      return reviewData;
+    }
     return{
       addReview,
       fetchAllReviews,
-      rating
+      rating,
+      editReview,
+      deleteReviews,
     }
 }

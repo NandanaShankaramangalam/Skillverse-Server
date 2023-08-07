@@ -12,11 +12,14 @@ export type courseRepository = {
     fetchTutorCourses : (tutId:string) => Promise<Course[]>;
     fetchCourseDetails : (id:string) => Promise<Course | null>;
     insertTutorial : (videoLocation:string,thumbnailLocation:string,title:string,description:string,courseId:string) => Promise<Course | null | UpdateResult>;
-    coursePayment : (id:string,status:boolean,studId:string) => Promise<Course | void | UpdateResult>;
+    coursePayment : (id:string,status:boolean,studId:string,fees:number) => Promise<Course | void | UpdateResult>;
     bookmarkCourse : (courseId:string,studId:string) => Promise<Course | void | UpdateResult>;
     removeBookmark : (courseId:string,studId:string) => Promise<Course | void | UpdateResult>;
     fetchSavedCourses : (studId:string) => Promise<Course[]|null>;
     fetchPurchasedCourses : (studId:string) => Promise<Course[]|null>;
+    fetchCateData : () => Promise<Course[]|null>;
+    fetchGraphDatas : (tutId:string) => Promise<Course[]|null>;
+    fetchBarDatas : () => Promise<Course[]|null>;
 }    
 
 export const courseRepositoryImpl = (courseModel:MongoDBCourse):courseRepository=>{
@@ -93,15 +96,20 @@ export const courseRepositoryImpl = (courseModel:MongoDBCourse):courseRepository
     }
 
     //Payment
-    const coursePayment = async(id:string,status:boolean,studId:string):Promise<Course | void | UpdateResult>=>{
+    const coursePayment = async(id:string,status:boolean,studId:string,fees:number):Promise<Course | void | UpdateResult>=>{
       try{
+          const date = new Date();
+          const month = new Date().toLocaleString('default',{month:'long'});
           const payment = await courseModel.updateOne(
           {_id:new ObjectId(id)},
           {
           // $set:{paymentStatus:status},
           $push:{students:studId}}
           );
-
+          const pay = await courseModel.updateOne(
+            {_id:new ObjectId(id)},
+            {$push:{stud:{id:studId,date:date,month:month,fees:fees}}}
+          );
           if(payment.modifiedCount>0){
             console.log('modifiedcount blk ok');
             return payment
@@ -177,9 +185,36 @@ export const courseRepositoryImpl = (courseModel:MongoDBCourse):courseRepository
      ])
     return courses
    }
+   
+   //Fetch Category Data and Course
+   const fetchCateData = async():Promise<Course[]|null>=>{
+    const data = await courseModel.aggregate([{$group:{_id:"$category",count: { $sum: 1 }}}]);
+    return data;
+   }
 
+   //Fetch Graph Data
+   const fetchGraphDatas = async(tutId:string):Promise<Course[]|null>=>{
+     const data = await courseModel.aggregate([{
+        $match :{tutId:tutId}
+    },{
+     $unwind:"$stud"
+    },
+    {$group:{_id:"$stud.month",total:{$sum:"$stud.fees"}}}
+  ])
+     return data;
+   }
+
+   //Fetch Bar Data
+   const fetchBarDatas = async():Promise<Course[]|null>=>{
+    const data =  await courseModel.aggregate([{
+   $unwind:"$stud"  
+  },
+  {$group:{_id:"$stud.month",total:{$sum:{$multiply:["$stud.fees", 0.05]}}}}
+])
+   return data;
+   }
     return{
-        createCourse,
+        createCourse,    
         fetchCourse,
         fetchCourseData,
         fetchTutorCourses,
@@ -190,5 +225,8 @@ export const courseRepositoryImpl = (courseModel:MongoDBCourse):courseRepository
         removeBookmark,
         fetchSavedCourses,
         fetchPurchasedCourses,
+        fetchCateData,
+        fetchGraphDatas,
+        fetchBarDatas,
     }
 }
