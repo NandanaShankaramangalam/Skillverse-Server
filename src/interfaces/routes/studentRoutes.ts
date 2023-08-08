@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { studentRegister, studentLogin, showCategory, showCourses, showInfo, updateInfo, fetchCourseDetails, payment, fetchStudentDetails, postReview, fetchReviews, bookmarkCourses, removeBookmarkedCourses, fetchSavedCourses, fetchPurchasedCourses, checkStudForOtp, resestPassword, rating, fetchTutors, showTutorProfile, editReviews, deleteReviews } from '../controllers/studentController';
+import { studentRegister, studentLogin, showCategory, showCourses, showInfo, updateInfo, fetchCourseDetails, payment, fetchStudentDetails, postReview, fetchReviews, bookmarkCourses, removeBookmarkedCourses, fetchSavedCourses, fetchPurchasedCourses, checkStudForOtp, resestPassword, rating, fetchTutors, showTutorProfile, editReviews, deleteReviews, findAvgRating } from '../controllers/studentController';
 import { studentAuth } from '../middlewares/studentAuth';
 
 export const studentRouter = Router();
@@ -26,4 +26,5 @@ studentRouter.get('/tutors-list',fetchTutors)
 studentRouter.get('/view-tutor-profile/:tutId',showTutorProfile)
 studentRouter.post('/edit-reviews',editReviews)
 studentRouter.post('/delete-reviews',deleteReviews)
+studentRouter.get('/average-rating',findAvgRating)
 // export default studentRouter

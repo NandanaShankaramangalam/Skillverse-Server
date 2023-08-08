@@ -37,6 +37,7 @@ import { getTutorsList } from '../../app/usecases/student/fetchTutors';
 import { fetchProfileData } from '../../app/usecases/tutor/fetchProfile';
 import { editReview } from '../../app/usecases/student/editReviews';
 import { deleteReview } from '../../app/usecases/student/deleteReviews';
+import { avgRatings } from '../../app/usecases/student/avgRating';
 const otpSender = require('node-otp-sender');
 
 // const JWT_SECRET="sdfghjlkj345678()fgjhkjhyftr[];dfghjhdfhggddfghghfdf3456";
@@ -542,6 +543,9 @@ export const showTutorProfile = async(req:Request,res:Response)=>{
 export const editReviews = async(req:Request,res:Response)=>{
     try{
      const {reviewId,newReview} = req.body;
+     console.log('revid=',reviewId);
+     console.log('revv=',newReview);
+     
      const reviewData = await editReview(reviewRepository)(reviewId,newReview);
      console.log('revv=',reviewData);
      
@@ -559,6 +563,56 @@ export const deleteReviews = async(req:Request,res:Response)=>{
      const {reviewId} = req.body;
      const reviewData = await deleteReview(reviewRepository)(reviewId);
      res.json({message:'Review updated successfully',reviewData})
+    }catch(error){
+        console.log("err=",error);
+        
+        res.status(500).json({ message: "Internal server error"});
+    } 
+}
+
+//Find Average Rating
+export const findAvgRating = async(req:Request,res:Response)=>{
+    try{
+     const avgRating:any = await avgRatings(reviewRepository)();
+     console.log('avg=',avgRating);
+    //  console.log('avgg=',avgRating[0].users);
+    // const obj: any = {};
+    
+    // avgRating?.forEach((item:any)=> {
+    //     const unique:any = []
+    //     item.users.forEach((element:any) => {
+    //         console.log('elem=',element);
+            
+    //         if(!unique.includes(element.studId)){
+    //             if(isNaN( obj[element.courseId])){
+    //                 obj[element.courseId] = 0
+    //             }
+    //             unique.push(element.studId) 
+    //             obj[element.courseId] += element.rating
+    //         }
+    //         console.log('uniq=',unique);
+    //     });
+    // });
+    //  console.log('obj=',obj);
+
+//     const obj: any = {};
+// const unique: any = []; // Initialize the unique array outside both loops
+
+// avgRating?.forEach((item: any) => {
+//   item.users.forEach((element: any) => {
+//     if (!unique.includes(element.studId)) {
+//       unique.push(element.studId);
+//     }
+//   });
+
+//   console.log('uniq',unique);
+// });
+    // const unique = new Map();
+
+    // const filteredData = avgRating.filter((item:any)=>{
+    //     if(unique.get(item.courseId))
+    // })
+     
     }catch(error){
         console.log("err=",error);
         

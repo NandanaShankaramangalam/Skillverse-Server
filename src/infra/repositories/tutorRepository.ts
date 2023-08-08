@@ -73,7 +73,7 @@ export const tutorRepositoryImpl = (tutorModel:MongoDBTutor):tutorRepository=>{
     const  findTutorProfile = async(tutId:string):Promise<tutorProfile | null>=>{
         const profileData = await tutorModel.aggregate([
             {$match:{_id:new ObjectId(tutId)}},
-            {$project:{_id:1,bannerLocation:1,profileLocation:1,description:1,niche:1}}
+            {$project:{_id:1,username:1,bannerLocation:1,profileLocation:1,description:1,niche:1}}
         ])
         if (profileData && profileData.length > 0) {
             const profile = profileData[0] as tutorProfile;

@@ -10,6 +10,7 @@ export type reviewRepository = {
   rating(ratingValue:number,studId:string,courseId:string) : Promise<review|null|UpdateResult>;
   editReview(reviewId:string,review:string) : Promise<review|null|UpdateResult>;
   deleteReviews(reviewId:string) : Promise<Delete>
+  findAverageRating() : Promise<review[]|null>;
 }
 
 export const reviewRepositoryImpl = (reviewModel:MongoDBReview):reviewRepository=>{
@@ -71,11 +72,20 @@ export const reviewRepositoryImpl = (reviewModel:MongoDBReview):reviewRepository
       const reviewData = await reviewModel.deleteOne({_id:new ObjectId(reviewId)});
       return reviewData;
     }
+
+    //Average Rating
+    const findAverageRating = async() : Promise<review[]|null>=>{
+      // const rating = await reviewModel.aggregate([{ $group: { _id: { courseId: "$courseId" }, users: {$addToSet:"$$ROOT"}}}])
+      
+      const rating = await reviewModel.find();
+      return rating
+    }
     return{
       addReview,
       fetchAllReviews,
       rating,
       editReview,
       deleteReviews,
+      findAverageRating,
     }
 }
