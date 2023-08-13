@@ -142,7 +142,7 @@ export const showCategory = async(req:Request,res:Response)=>{
             
             // const newArray = cateData.map(obj=>{return {...obj,subcategory:obj.subcategory}})
             const newArray = cateData.map(obj=>{return {...obj}})
-            // console.log('kk',newArray);
+            // console.log('kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk',newArray);
             res.json({success:'Category data fetching successful',newArray});
         }else{
             res.json({ invalid: "No category data available!" });
@@ -155,12 +155,13 @@ export const showCategory = async(req:Request,res:Response)=>{
 //Show courses 
 export const showCourses = async(req:Request,res:Response)=>{
     try{
-        console.log('okkkkkk');
+        // console.log('okkkkkk');
         
         const selectedCategory = req.params.selectedCategory;
         // console.log('sel ctgry=',selectedCategory);
-        const courses = await fetchCourses(courseRepository)(selectedCategory);
-        console.log('cos=',courses);
+        const course = await fetchCourses(courseRepository)(selectedCategory);
+        const courses = course?.filter((obj)=>obj.tutorial?.length)
+        console.log('cossssssssssss=',courses);
 
         // const s3 = new AWS.S3({
         //     accessKeyId: `${s3Config.accessKeyId}`,
@@ -390,7 +391,7 @@ export const fetchSavedCourses = async(req:Request,res:Response)=>{
     try{
      const studId = req.params.studId;
      const bookmarkedCourses = await getSavedCourses(courseRepository)(studId);
-    //  console.log('jj=',bookmarkedCourses);
+     console.log('jjjjjjjjjjjj=',bookmarkedCourses);
      
      if(bookmarkedCourses){
         res.status(201).json({message:'Fetch all bookmarked courses succesfully',bookmarkedCourses}) 

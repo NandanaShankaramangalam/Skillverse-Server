@@ -10,7 +10,7 @@ studentRouter.get('/show-category',showCategory);
 studentRouter.get('/show-courses/:selectedCategory',showCourses);
 studentRouter.get('/personal-info/:studId',studentAuth,showInfo);
 studentRouter.post('/update-info/:studId',studentAuth,updateInfo);
-studentRouter.get('/course/:courseId',studentAuth,fetchCourseDetails);
+studentRouter.get('/course/:courseId',fetchCourseDetails);
 studentRouter.post('/payment',payment);
 studentRouter.get('/student/:studId',fetchStudentDetails);
 studentRouter.post('/post-review/:courseId/:studId',postReview);

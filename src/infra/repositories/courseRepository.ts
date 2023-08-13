@@ -11,7 +11,7 @@ export type courseRepository = {
     fetchCourseData : (id : string) => Promise<Course | undefined>;
     fetchTutorCourses : (tutId:string) => Promise<Course[]>;
     fetchCourseDetails : (id:string) => Promise<Course | null>;
-    insertTutorial : (videoLocation:string,thumbnailLocation:string,title:string,description:string,courseId:string) => Promise<Course | null | UpdateResult>;
+    insertTutorial : (videoLocation:string,thumbnailLocation:string,title:string,description:string,courseId:string,id:Date) => Promise<Course | null | UpdateResult>;
     coursePayment : (id:string,status:boolean,studId:string,fees:number) => Promise<Course | void | UpdateResult>;
     bookmarkCourse : (courseId:string,studId:string) => Promise<Course | void | UpdateResult>;
     removeBookmark : (courseId:string,studId:string) => Promise<Course | void | UpdateResult>;
@@ -20,8 +20,8 @@ export type courseRepository = {
     fetchCateData : () => Promise<Course[]|null>;
     fetchGraphDatas : (tutId:string) => Promise<Course[]|null>;
     fetchBarDatas : () => Promise<Course[]|null>;
-}    
-
+    editTutorial : (courseId:string,newTitle:string,newDescription:string,ImgLocation:string,VdoLocation:string,img:string,videoUrl:string,vdoId:string,index:number) => Promise<Course[]|null|UpdateResult>
+  }
 export const courseRepositoryImpl = (courseModel:MongoDBCourse):courseRepository=>{
     //Create Course
     const createCourse = async(course:Course):Promise<Course>=>{
@@ -42,6 +42,9 @@ export const courseRepositoryImpl = (courseModel:MongoDBCourse):courseRepository
     //Fetch courses
     const fetchCourse = async(selectedCategory:string):Promise<Course[]>=>{
         const course = await courseModel.find({category:selectedCategory});
+        // const course = await courseModel.aggregate([{$match:{category:selectedCategory}}]);
+        console.log('kkkkkkkkkkkkkkkkkkkkkkkkkkkkk=',course);
+        
         return course.map((obj)=>obj.toObject());
     }
 
@@ -49,6 +52,7 @@ export const courseRepositoryImpl = (courseModel:MongoDBCourse):courseRepository
     const fetchCourseData = async(id:string):Promise<Course | undefined>=>{
         try{
             const courseData = await courseModel.findOne({_id:new ObjectId(id)});
+            // const courseData = await courseModel.({_id:new ObjectId(id)});
             // console.log('cosdata=',courseData);
             return courseData?.toObject();
         }catch (error) {
@@ -81,9 +85,9 @@ export const courseRepositoryImpl = (courseModel:MongoDBCourse):courseRepository
     }
 
     //Upload tutorial 
-    const insertTutorial = async(videoLocation:string,thumbnailLocation:string,title:string,description:string,courseId:string):Promise<Course | null | UpdateResult>=>{
+    const insertTutorial = async(videoLocation:string,thumbnailLocation:string,title:string,description:string,courseId:string,id:Date):Promise<Course | null | UpdateResult>=>{
       try{
-        const tutorial = await courseModel.updateOne({_id:new ObjectId(courseId)},{ $push: { tutorial: { title: title, description: description, video:videoLocation, thumbnail: thumbnailLocation }}})
+        const tutorial = await courseModel.updateOne({_id:new ObjectId(courseId)},{ $push: { tutorial: {id:id, title: title, description: description, video:videoLocation, thumbnail: thumbnailLocation }}})
         if(tutorial.modifiedCount>0){
           console.log('modifiedcount of add tutorial');
           return tutorial
@@ -152,29 +156,39 @@ export const courseRepositoryImpl = (courseModel:MongoDBCourse):courseRepository
   //  Fetch all bookmarked courses
    const fetchSavedCourses = async(studId:string):Promise<Course[]|null>=>{
     try{
-      // console.log('sid=',studId);
+      console.log('sidddd=',studId);
       
      const courses = await courseModel.aggregate([
       {
         $match:{
           bookmarks:{$in:[studId]}
-        }
-        // $lookup:{
-        //   from:'students',
-        //   localField:'students',
-        //   foreignField:'studId',
-        //   as:'Students'
-        // }
+        } 
       }
      ])
+    //  const courses = await courseModel.aggregate([
+    //   {
+    //     $match:{
+    //       bookmarks:{$in:[studId]}
+    //     },
+    //     $lookup:{
+    //       from:'categories',
+    //       localField:'category',
+    //       foreignField:'category',
+    //       as:'bookmarks'
+    //     }
+    //   }
+    //  ])
+     console.log('hhhjjhjhbhjb=',courses);
+     
      return courses
     }catch (error) {
       console.error('Error occured:', error);
       throw error; // or handle the error appropriately
     }
    }
-
-   //Fetch Purchased Courses
+    // db.courses.aggregate([{$match:{bookmarks:{$in:['6498151b57fc3aa4b85ead1d']}}},{$lookup:{from:'categories',localField:'category',foreignField:'category',as:'datas'}}])
+   
+    //Fetch Purchased Courses
    const fetchPurchasedCourses = async(studId:string):Promise<Course[]|null>=>{
     const courses = await courseModel.aggregate([
       {
@@ -213,6 +227,49 @@ export const courseRepositoryImpl = (courseModel:MongoDBCourse):courseRepository
 ])
    return data;
    }
+
+   //Edit Tutorial
+   const editTutorial = async(courseId:string,newTitle:string,newDescription:string,ImgLocation:string,VdoLocation:string,img:string,videoUrl:string,vdoId:string,index:number):Promise<Course[]|null|UpdateResult>=>{
+     if(ImgLocation && VdoLocation){
+      console.log('vdoooiddd=',vdoId);
+      const data = await courseModel.updateOne({_id:new ObjectId(courseId),"tutorial.id":vdoId},
+      {$set:{'tutorial.$.title':newTitle,'tutorial.$.description':newDescription,'tutorial.$.thumbnail':ImgLocation,'tutorial.$.video':VdoLocation}},
+      )
+      console.log('scnddddddddd=',data);
+      console.log('!ImgLocation && !VdoLocation');
+      return data;
+     }
+     else if(ImgLocation && !VdoLocation){
+      console.log('vdoooiddd=',vdoId);
+      const data = await courseModel.updateOne({_id:new ObjectId(courseId),"tutorial.id":vdoId},
+      {$set:{'tutorial.$.title':newTitle,'tutorial.$.description':newDescription,'tutorial.$.thumbnail':ImgLocation,'tutorial.$.video':videoUrl}},
+      )
+      console.log('scnddddddddd=',data);
+      console.log('!ImgLocation && !VdoLocation');
+      return data;   
+     }
+     else if(!ImgLocation && VdoLocation){
+        console.log('vdoooiddd=',vdoId);
+        const data = await courseModel.updateOne({_id:new ObjectId(courseId),"tutorial.id":vdoId},
+        {$set:{'tutorial.$.title':newTitle,'tutorial.$.description':newDescription,'tutorial.$.thumbnail':img,'tutorial.$.video':VdoLocation}},
+        )
+      
+        console.log('scnddddddddd=',data);
+        console.log('!ImgLocation && !VdoLocation');
+        return data;
+     }
+     else if(!ImgLocation && !VdoLocation){  
+        console.log('vdoooiddd=',vdoId);
+        const data = await courseModel.updateOne({_id:new ObjectId(courseId),"tutorial.id":vdoId},
+        {$set:{'tutorial.$.title':newTitle,'tutorial.$.description':newDescription,'tutorial.$.thumbnail':img,'tutorial.$.video':videoUrl}},
+        )
+      
+        console.log('scnddddddddd=',data);
+        console.log('!ImgLocation && !VdoLocation');
+        return data;
+     }
+     return null
+   }
     return{
         createCourse,    
         fetchCourse,
@@ -228,5 +285,6 @@ export const courseRepositoryImpl = (courseModel:MongoDBCourse):courseRepository
         fetchCateData,
         fetchGraphDatas,
         fetchBarDatas,
+        editTutorial,
     }
 }

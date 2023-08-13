@@ -88,7 +88,7 @@ export const sendMessage=async(req:Request,res:Response)=>{
     // console.log('piiii');
     
   const {content,chatId,currentUserId,currentRole}=req.body
-  console.log('reqqqq=',req.body);
+  // console.log('reqqqq=',req.body);
   if(currentRole === 'student'){
     const student = currentUserId;
     const msg=await sendingMessage(messageRepository)(content,chatId,student)

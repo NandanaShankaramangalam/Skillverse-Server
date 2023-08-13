@@ -9,7 +9,7 @@ export interface Course {
     tutId : string;
     status ?: boolean;
     students ?: [string];
-    tutorial ?:[{video:string,thumbnail:string,title:string,description:string,}];
+    tutorial ?:[{video:string,thumbnail:string,title:string,description:string,id:Date}];
     bookmarks ?: string[];
     stud ?: [{id:string,date:Date,month:string,fees:number}]
     // paymentStatus ?: boolean;

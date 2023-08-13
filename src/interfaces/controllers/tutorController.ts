@@ -22,6 +22,7 @@ import { fetchSubcategory } from '../../app/usecases/tutor/fetchSubcategory';
 import { studentModel } from '../../infra/database/studentModel';
 import { fetchStudentData } from '../../app/usecases/admin/fetchStudent';
 import { fetchGraphData } from '../../app/usecases/tutor/fetchGraphData';
+import { TutorialEdit } from '../../app/usecases/tutor/TutorialEdit';
 const jwt=require('jsonwebtoken');
 
 const JWT_SECRET='your-secret-key';  
@@ -262,10 +263,10 @@ export const createCourse = async(req:Request,res:Response)=>{
  //Upload class
  export const uploadClass = async(req:Request,res:Response)=>{
     try{
-      const {videoLocation,thumbnailLocation,title,description,courseId} = req.body;
+      const {videoLocation,thumbnailLocation,title,description,courseId,id} = req.body;
       console.log('title=',title);
       console.log('vdo=',videoLocation);
-      const tutorial = await classUpload(courseRepository)(videoLocation,thumbnailLocation,title,description,courseId);
+      const tutorial = await classUpload(courseRepository)(videoLocation,thumbnailLocation,title,description,courseId,id);
       console.log('tutorial=',tutorial);
       if(tutorial){
         res.json({success:'Tutorial upload successful',tutorial});
@@ -297,18 +298,23 @@ export const createCourse = async(req:Request,res:Response)=>{
  //Edit Tutorials
  export const editTutorial = async(req:Request,res:Response)=>{
     try{
-      const{courseId,newTitle,newDescription,ImgLocation,VdoLocation} = req.body;
-      console.log('cid=',courseId);
+      const{courseId,newTitle,newDescription,ImgLocation,VdoLocation,img,videoUrl,vdoId,index} = req.body;
+      console.log('cidddddddddddddddddddddddddddddddddddddd=',courseId);
       console.log('title=',newTitle);
-      console.log('Img=',ImgLocation);
+      console.log('Imgloc=',ImgLocation);
       console.log('Vdo=',VdoLocation);
       console.log('Desc=',newDescription);
-      
+      console.log('Img=',img);
+      console.log('Vdourl=',videoUrl);
+      console.log('VdoId=',vdoId);
+      const editData = await TutorialEdit(courseRepository)(courseId,newTitle,newDescription,ImgLocation,VdoLocation,img,videoUrl,vdoId,index);
     }catch(error){
+        console.log('errr=',error);  
+        
         res.status(500).json({ message: "Internal server error" });
     }
  }
-
+     
  //Dashboard Data
 export const dashboardData = async(req:Request,res:Response) =>{
     try{
