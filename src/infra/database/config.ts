@@ -1,10 +1,11 @@
 import mongoose from "mongoose";
 
+const URL = process.env.REACT_APP_MONGO_URL as string
 
 export const db=()=>{
-mongoose.connect("mongodb://127.0.0.1:27017/skillverse")
+mongoose.connect(URL)
   .then(() => {
-    console.log("Database connected successfully");
+    console.log("Database connected successfully",URL);
   })
   .catch((error) => {
     console.log(error.message);
