@@ -32,7 +32,7 @@ app.use(cookieParser());
 app.use(express.json())
 app.use(errorHandler);
 app.use(cors({
-    origin : ['http://localhost:3000'],
+    origin : ['http://localhost:3000',process.env.REACT_APP_CLIENT_URL],
     methods : ['GET','POST'],
     credentials : true
 }))
@@ -57,7 +57,7 @@ app.use('/message',messageRouter);
         const io=require('socket.io')(server , {
             pingTimeout:60000,
             cors:{
-                origin:'http://localhost:3000'
+                origin:['http://localhost:3000',process.env.REACT_APP_CLIENT_URL]
             },
         })
 
