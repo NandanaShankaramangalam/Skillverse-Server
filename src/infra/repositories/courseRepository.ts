@@ -21,6 +21,7 @@ export type courseRepository = {
     fetchGraphDatas : (tutId:string) => Promise<Course[]|null>;
     fetchBarDatas : () => Promise<Course[]|null>;
     editTutorial : (courseId:string,newTitle:string,newDescription:string,ImgLocation:string,VdoLocation:string,img:string,videoUrl:string,vdoId:string,index:number) => Promise<Course[]|null|UpdateResult>
+    fetchStudents(tutId:string) : Promise<Course[]>;
   }
 export const courseRepositoryImpl = (courseModel:MongoDBCourse):courseRepository=>{
     //Create Course
@@ -41,11 +42,23 @@ export const courseRepositoryImpl = (courseModel:MongoDBCourse):courseRepository
     
     //Fetch courses
     const fetchCourse = async(selectedCategory:string):Promise<Course[]>=>{
-        const course = await courseModel.find({category:selectedCategory});
+        // const course = await courseModel.find({category:selectedCategory});
+        const course = await courseModel.aggregate([{$match:{category:selectedCategory}},
+          {$addFields:{
+            tutorsId:{ $toObjectId: "$tutId" }
+          }},
+          {$lookup: {
+            from: "tutors",
+            localField: "tutorsId",
+            foreignField: "_id",
+            as: "Details",
+            pipeline:[{$match:{status:true}}]
+          }}]);
         // const course = await courseModel.aggregate([{$match:{category:selectedCategory}}]);
-        console.log('kkkkkkkkkkkkkkkkkkkkkkkkkkkkk=',course);
+        console.log('pppppppppp=',course);
         
-        return course.map((obj)=>obj.toObject());
+        // return course.map((obj)=>obj.toObject());
+        return course;
     }
 
     //Fetch Course Details
@@ -270,6 +283,13 @@ export const courseRepositoryImpl = (courseModel:MongoDBCourse):courseRepository
      }
      return null
    }
+   const fetchStudents = async(tutId:string):Promise<Course[]> =>{
+    const data = await courseModel.aggregate([
+      {$match:{tutId:tutId}},
+
+    ]);
+    return data
+   }
     return{
         createCourse,    
         fetchCourse,
@@ -286,5 +306,6 @@ export const courseRepositoryImpl = (courseModel:MongoDBCourse):courseRepository
         fetchGraphDatas,
         fetchBarDatas,
         editTutorial,
+        fetchStudents,
     }
 }

@@ -23,6 +23,7 @@ import { studentModel } from '../../infra/database/studentModel';
 import { fetchStudentData } from '../../app/usecases/admin/fetchStudent';
 import { fetchGraphData } from '../../app/usecases/tutor/fetchGraphData';
 import { TutorialEdit } from '../../app/usecases/tutor/TutorialEdit';
+import { fetchStud } from '../../app/usecases/tutor/fetchStudents';
 const jwt=require('jsonwebtoken');
 
 const JWT_SECRET='your-secret-key';  
@@ -149,10 +150,11 @@ export const editProfile = async(req:Request,res:Response)=>{
         console.log('tut id=',req.params.tutId);
         console.log('datssssss=',req.body);
         const {profileLocation,bannerLocation,description,niche,tutId} = req.body;
+        // const {profileLocation,bannerLocation} = req
         const profileData = await profileEdit(tutorRepository)(profileLocation,bannerLocation,description,niche,tutId);
         // console.log('pro=',profileData);
         if(profileData){
-          res.json({message:'Tutor Profile Edit Success',isBlocked:true})
+          res.json({message:'Tutor Profile Edit Success',isBlocked:true,isEdit:true});
       }else{
           res.json({message:'Tutor Profile Edit Failed!'})
       }
@@ -282,8 +284,9 @@ export const createCourse = async(req:Request,res:Response)=>{
  export const fetchStudents = async(req:Request,res:Response)=>{
     try{
         console.log('controller ok');
-        
-        const students = await fetchStudentData(studentRepository)();
+        const {tutId} = req.body;
+        // const students = await fetchStudentData(studentRepository)();
+        const students = await fetchStud(courseRepository)(tutId);
         if(students){
             console.log('stdd=',students);
             res.json({success:'Student fetch successful',students});

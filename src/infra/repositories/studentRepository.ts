@@ -114,6 +114,7 @@ export const studentRepositoryImpl = (studentModel:MongoDBUser):studentRepositor
             return result
           } 
     }
+
     return{
         create,
         findByEmail,

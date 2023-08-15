@@ -40,9 +40,9 @@ const classUpload_1 = require("../../app/usecases/tutor/classUpload");
 const editProfile_1 = require("../../app/usecases/tutor/editProfile");
 const fetchSubcategory_1 = require("../../app/usecases/tutor/fetchSubcategory");
 const studentModel_1 = require("../../infra/database/studentModel");
-const fetchStudent_1 = require("../../app/usecases/admin/fetchStudent");
 const fetchGraphData_1 = require("../../app/usecases/tutor/fetchGraphData");
 const TutorialEdit_1 = require("../../app/usecases/tutor/TutorialEdit");
+const fetchStudents_1 = require("../../app/usecases/tutor/fetchStudents");
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = 'your-secret-key';
 const db = tutorModel_1.tutorModel;
@@ -159,10 +159,11 @@ const editProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         console.log('tut id=', req.params.tutId);
         console.log('datssssss=', req.body);
         const { profileLocation, bannerLocation, description, niche, tutId } = req.body;
+        // const {profileLocation,bannerLocation} = req
         const profileData = yield (0, editProfile_1.profileEdit)(tutorRepository)(profileLocation, bannerLocation, description, niche, tutId);
         // console.log('pro=',profileData);
         if (profileData) {
-            res.json({ message: 'Tutor Profile Edit Success', isBlocked: true });
+            res.json({ message: 'Tutor Profile Edit Success', isBlocked: true, isEdit: true });
         }
         else {
             res.json({ message: 'Tutor Profile Edit Failed!' });
@@ -296,7 +297,9 @@ exports.uploadClass = uploadClass;
 const fetchStudents = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         console.log('controller ok');
-        const students = yield (0, fetchStudent_1.fetchStudentData)(studentRepository)();
+        const { tutId } = req.body;
+        // const students = await fetchStudentData(studentRepository)();
+        const students = yield (0, fetchStudents_1.fetchStud)(courseRepository)(tutId);
         if (students) {
             console.log('stdd=', students);
             res.json({ success: 'Student fetch successful', students });

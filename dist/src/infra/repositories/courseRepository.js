@@ -29,10 +29,22 @@ const courseRepositoryImpl = (courseModel) => {
     });
     //Fetch courses
     const fetchCourse = (selectedCategory) => __awaiter(void 0, void 0, void 0, function* () {
-        const course = yield courseModel.find({ category: selectedCategory });
+        // const course = await courseModel.find({category:selectedCategory});
+        const course = yield courseModel.aggregate([{ $match: { category: selectedCategory } },
+            { $addFields: {
+                    tutorsId: { $toObjectId: "$tutId" }
+                } },
+            { $lookup: {
+                    from: "tutors",
+                    localField: "tutorsId",
+                    foreignField: "_id",
+                    as: "Details",
+                    pipeline: [{ $match: { status: true } }]
+                } }]);
         // const course = await courseModel.aggregate([{$match:{category:selectedCategory}}]);
-        console.log('kkkkkkkkkkkkkkkkkkkkkkkkkkkkk=', course);
-        return course.map((obj) => obj.toObject());
+        console.log('pppppppppp=', course);
+        // return course.map((obj)=>obj.toObject());
+        return course;
     });
     //Fetch Course Details
     const fetchCourseData = (id) => __awaiter(void 0, void 0, void 0, function* () {
@@ -231,6 +243,12 @@ const courseRepositoryImpl = (courseModel) => {
         }
         return null;
     });
+    const fetchStudents = (tutId) => __awaiter(void 0, void 0, void 0, function* () {
+        const data = yield courseModel.aggregate([
+            { $match: { tutId: tutId } },
+        ]);
+        return data;
+    });
     return {
         createCourse,
         fetchCourse,
@@ -247,6 +265,7 @@ const courseRepositoryImpl = (courseModel) => {
         fetchGraphDatas,
         fetchBarDatas,
         editTutorial,
+        fetchStudents,
     };
 };
 exports.courseRepositoryImpl = courseRepositoryImpl;

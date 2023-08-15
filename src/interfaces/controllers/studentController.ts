@@ -155,7 +155,7 @@ export const showCategory = async(req:Request,res:Response)=>{
 //Show courses 
 export const showCourses = async(req:Request,res:Response)=>{
     try{
-        // console.log('okkkkkk');
+        console.log('kkkkkkzzzzzzzzzxxxxxxxxxxxddddddddd');
         
         const selectedCategory = req.params.selectedCategory;
         // console.log('sel ctgry=',selectedCategory);

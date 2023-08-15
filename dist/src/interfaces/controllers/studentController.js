@@ -164,7 +164,7 @@ exports.showCategory = showCategory;
 //Show courses 
 const showCourses = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        // console.log('okkkkkk');
+        console.log('kkkkkkzzzzzzzzzxxxxxxxxxxxddddddddd');
         const selectedCategory = req.params.selectedCategory;
         // console.log('sel ctgry=',selectedCategory);
         const course = yield (0, fetchCourses_1.fetchCourses)(courseRepository)(selectedCategory);
