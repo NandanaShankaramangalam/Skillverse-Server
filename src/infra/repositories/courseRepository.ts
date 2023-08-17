@@ -55,7 +55,7 @@ export const courseRepositoryImpl = (courseModel:MongoDBCourse):courseRepository
             pipeline:[{$match:{status:true}}]
           }}]);
         // const course = await courseModel.aggregate([{$match:{category:selectedCategory}}]);
-        console.log('pppppppppp=',course);
+        // console.log('pppppppppp=',course);
         
         // return course.map((obj)=>obj.toObject());
         return course;
@@ -191,7 +191,7 @@ export const courseRepositoryImpl = (courseModel:MongoDBCourse):courseRepository
     //     }
     //   }
     //  ])
-     console.log('hhhjjhjhbhjb=',courses);
+    //  console.log('hhhjjhjhbhjb=',courses);
      
      return courses
     }catch (error) {

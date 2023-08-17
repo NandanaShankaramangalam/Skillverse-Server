@@ -20,7 +20,7 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.dashboardData = exports.editTutorial = exports.fetchStudents = exports.uploadClass = exports.showCourseDetails = exports.showCourses = exports.createCourse = exports.showSubcategory = exports.showCategory = exports.editProfile = exports.showProfile = exports.addProfile = exports.videoUpload = exports.tutorLogin = exports.tutorRegister = void 0;
+exports.resetPassword = exports.checkTutorForOtp = exports.dashboardData = exports.editTutorial = exports.fetchStudents = exports.uploadClass = exports.showCourseDetails = exports.showCourses = exports.createCourse = exports.showSubcategory = exports.showCategory = exports.editProfile = exports.showProfile = exports.addProfile = exports.videoUpload = exports.tutorLogin = exports.tutorRegister = void 0;
 const studentRepository_1 = require("./../../infra/repositories/studentRepository");
 const courseRepository_1 = require("./../../infra/repositories/courseRepository");
 const categoryRepository_1 = require("./../../infra/repositories/categoryRepository");
@@ -43,7 +43,10 @@ const studentModel_1 = require("../../infra/database/studentModel");
 const fetchGraphData_1 = require("../../app/usecases/tutor/fetchGraphData");
 const TutorialEdit_1 = require("../../app/usecases/tutor/TutorialEdit");
 const fetchStudents_1 = require("../../app/usecases/tutor/fetchStudents");
+const CheckTutor_1 = require("../../app/usecases/tutor/CheckTutor");
+const passwordReset_1 = require("../../app/usecases/tutor/passwordReset");
 const jwt = require('jsonwebtoken');
+const otpSender = require('node-otp-sender');
 const JWT_SECRET = 'your-secret-key';
 const db = tutorModel_1.tutorModel;
 const tutorRepository = (0, tutorRepository_1.tutorRepositoryImpl)(db);
@@ -110,7 +113,7 @@ const tutorLogin = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 exports.tutorLogin = tutorLogin;
 //Video Upload
 const videoUpload = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('uplddd=', req.body);
+    // console.log('uplddd=',req.body);
     // console.log('upld file',req.file);
 });
 exports.videoUpload = videoUpload;
@@ -135,7 +138,7 @@ const addProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 exports.addProfile = addProfile;
 //Show Profile
 const showProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('aaa');
+    // console.log('aaa');
     console.log('tut id=', req.params.tutId);
     try {
         const tutId = req.params.tutId;
@@ -157,7 +160,7 @@ exports.showProfile = showProfile;
 const editProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         console.log('tut id=', req.params.tutId);
-        console.log('datssssss=', req.body);
+        // console.log('datssssss=',req.body);
         const { profileLocation, bannerLocation, description, niche, tutId } = req.body;
         // const {profileLocation,bannerLocation} = req
         const profileData = yield (0, editProfile_1.profileEdit)(tutorRepository)(profileLocation, bannerLocation, description, niche, tutId);
@@ -317,7 +320,7 @@ exports.fetchStudents = fetchStudents;
 const editTutorial = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { courseId, newTitle, newDescription, ImgLocation, VdoLocation, img, videoUrl, vdoId, index } = req.body;
-        console.log('cidddddddddddddddddddddddddddddddddddddd=', courseId);
+        //   console.log('cidddddddddddddddddddddddddddddddddddddd=',courseId);
         console.log('title=', newTitle);
         console.log('Imgloc=', ImgLocation);
         console.log('Vdo=', VdoLocation);
@@ -353,3 +356,49 @@ const dashboardData = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.dashboardData = dashboardData;
+//Check Tutor for OTP
+const checkTutorForOtp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const email = req.body.email;
+        console.log('em=', email);
+        const emailCheck = yield (0, CheckTutor_1.CheckTutor)(tutorRepository)(email);
+        if (emailCheck) {
+            const senderEmail = `${process.env.REACT_APP_SENDER_EMAIL}`;
+            const senderPassword = `${process.env.REACT_APP_SENDER_PASSWORD}`;
+            const recipientEmail = email;
+            const subject = 'OTP Verification';
+            otpSender(senderEmail, senderPassword, recipientEmail, subject)
+                .then((response) => {
+                console.log(response);
+                res.status(201).json({ message: 'Email exist', emailExist: true, otp: response.otp });
+            })
+                .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+    }
+    catch (err) {
+        console.log(err);
+    }
+});
+exports.checkTutorForOtp = checkTutorForOtp;
+//Reset Tutor Password
+const resetPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { email, password } = req.body;
+        console.log('email=', email);
+        console.log('password=', password);
+        const result = yield (0, passwordReset_1.passwordReset)(tutorRepository)(email, password);
+        if (result) {
+            res.status(201).json({ message: 'Password reset successfull', result });
+        }
+        else {
+            res.json({ message: 'Invalid datas' });
+        }
+    }
+    catch (error) {
+        console.log("err=", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
+exports.resetPassword = resetPassword;

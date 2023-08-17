@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import {upload} from '../../../index'
-import { addProfile, createCourse, dashboardData, editProfile, editTutorial, fetchStudents, showCategory, showCourseDetails, showCourses, showProfile, showSubcategory, tutorRegister, uploadClass, videoUpload } from '../controllers/tutorController';
+import { addProfile, checkTutorForOtp, createCourse, dashboardData, editProfile, editTutorial, fetchStudents, resetPassword, showCategory, showCourseDetails, showCourses, showProfile, showSubcategory, tutorRegister, uploadClass, videoUpload } from '../controllers/tutorController';
 import { tutorLogin } from '../controllers/tutorController';
 import { tutorAuth } from '../middlewares/tutorAuth';
 
@@ -22,3 +22,5 @@ tutorRouter.post('/upload-class',uploadClass);
 tutorRouter.get('/show-students',fetchStudents);  
 tutorRouter.post('/edit-tutorials',editTutorial);  
 tutorRouter.get('/dashboard-details/:tutId',dashboardData);
+tutorRouter.post('/check-tutor',checkTutorForOtp);
+tutorRouter.post('/reset-password',resetPassword);

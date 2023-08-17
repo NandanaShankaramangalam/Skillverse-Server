@@ -11,7 +11,9 @@ export type tutorRepository = {
     unblockTutors(id:string):Promise<tutor|UpdateResult|void>;
     addTutorProfile(profileLocation:string,bannerLocation:string,description:string,niche:string,tutId:string): Promise<tutor|UpdateResult|void>;
     findTutorProfile(tutId:string): Promise<tutorProfile | null>
-    editTutorProfile(profileLocation:string,bannerLocation:string,description:string,niche:string,tutId:string):Promise<tutor|void|UpdateResult> 
+    editTutorProfile(profileLocation:string,bannerLocation:string,description:string,niche:string,tutId:string):Promise<tutor|void|UpdateResult>;
+    resetPassword(email:string,password:string): Promise< tutor|UpdateResult|void >;
+     
 }
 
 export const tutorRepositoryImpl = (tutorModel:MongoDBTutor):tutorRepository=>{
@@ -114,6 +116,15 @@ export const tutorRepositoryImpl = (tutorModel:MongoDBTutor):tutorRepository=>{
         }
         
     }
+
+        //Reset password
+        const resetPassword = async(email:string,password:string): Promise< tutor|UpdateResult|void >=>{
+            const result = await tutorModel.updateOne({email:email},{$set:{password:password}});
+            if(result.modifiedCount>0){
+                console.log('Password reset successful');
+                return result
+              } 
+        }
     return{
         create,
         findByEmail,   
@@ -123,5 +134,6 @@ export const tutorRepositoryImpl = (tutorModel:MongoDBTutor):tutorRepository=>{
         addTutorProfile,
         findTutorProfile,
         editTutorProfile,
+        resetPassword,
     }
 }

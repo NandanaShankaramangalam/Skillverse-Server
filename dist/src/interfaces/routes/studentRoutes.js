@@ -16,8 +16,8 @@ exports.studentRouter.post('/payment', studentController_1.payment);
 exports.studentRouter.get('/student/:studId', studentController_1.fetchStudentDetails);
 exports.studentRouter.post('/post-review/:courseId/:studId', studentController_1.postReview);
 exports.studentRouter.get('/view-reviews/:courseId', studentController_1.fetchReviews);
-exports.studentRouter.post('/bookmark/:courseId/:studId', studentController_1.bookmarkCourses);
-exports.studentRouter.post('/remove-bookmark/:courseId/:studId', studentController_1.removeBookmarkedCourses);
+exports.studentRouter.post('/bookmark/:courseId/:studId', studentAuth_1.studentAuth, studentController_1.bookmarkCourses);
+exports.studentRouter.post('/remove-bookmark/:courseId/:studId', studentAuth_1.studentAuth, studentController_1.removeBookmarkedCourses);
 exports.studentRouter.get('/saved-courses/:studId', studentAuth_1.studentAuth, studentController_1.fetchSavedCourses);
 exports.studentRouter.get('/purchased-courses/:studId', studentAuth_1.studentAuth, studentController_1.fetchPurchasedCourses);
 exports.studentRouter.post('/check-student', studentController_1.checkStudForOtp);
@@ -25,7 +25,7 @@ exports.studentRouter.post('/reset-password', studentController_1.resestPassword
 exports.studentRouter.post('/rating', studentController_1.rating);
 exports.studentRouter.get('/tutors-list', studentController_1.fetchTutors);
 exports.studentRouter.get('/view-tutor-profile/:tutId', studentController_1.showTutorProfile);
-exports.studentRouter.post('/edit-reviews', studentController_1.editReviews);
-exports.studentRouter.post('/delete-reviews', studentController_1.deleteReviews);
+exports.studentRouter.post('/edit-reviews', studentAuth_1.studentAuth, studentController_1.editReviews);
+exports.studentRouter.post('/delete-reviews', studentAuth_1.studentAuth, studentController_1.deleteReviews);
 exports.studentRouter.get('/average-rating', studentController_1.findAvgRating);
 // export default studentRouter

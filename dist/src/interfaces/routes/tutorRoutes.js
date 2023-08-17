@@ -22,3 +22,5 @@ exports.tutorRouter.post('/upload-class', tutorController_1.uploadClass);
 exports.tutorRouter.get('/show-students', tutorController_1.fetchStudents);
 exports.tutorRouter.post('/edit-tutorials', tutorController_1.editTutorial);
 exports.tutorRouter.get('/dashboard-details/:tutId', tutorController_1.dashboardData);
+exports.tutorRouter.post('/check-tutor', tutorController_1.checkTutorForOtp);
+exports.tutorRouter.post('/reset-password', tutorController_1.resetPassword);

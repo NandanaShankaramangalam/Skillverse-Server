@@ -24,7 +24,10 @@ import { fetchStudentData } from '../../app/usecases/admin/fetchStudent';
 import { fetchGraphData } from '../../app/usecases/tutor/fetchGraphData';
 import { TutorialEdit } from '../../app/usecases/tutor/TutorialEdit';
 import { fetchStud } from '../../app/usecases/tutor/fetchStudents';
+import { CheckTutor } from '../../app/usecases/tutor/CheckTutor';
+import { passwordReset } from '../../app/usecases/tutor/passwordReset';
 const jwt=require('jsonwebtoken');
+const otpSender = require('node-otp-sender');
 
 const JWT_SECRET='your-secret-key';  
 const db = tutorModel;
@@ -101,7 +104,7 @@ export const tutorLogin = async(req:Request,res:Response)=>{
 
 //Video Upload
 export const videoUpload = async(req:Request,res:Response)=>{
-    console.log('uplddd=',req.body);
+    // console.log('uplddd=',req.body);
     // console.log('upld file',req.file);
     
     
@@ -126,7 +129,7 @@ export const addProfile = async(req:Request,res:Response)=>{
 
 //Show Profile
 export const showProfile = async(req:Request,res:Response)=>{
-    console.log('aaa');
+    // console.log('aaa');
     
    console.log('tut id=',req.params.tutId);
    try{
@@ -148,7 +151,7 @@ export const showProfile = async(req:Request,res:Response)=>{
 export const editProfile = async(req:Request,res:Response)=>{
     try{
         console.log('tut id=',req.params.tutId);
-        console.log('datssssss=',req.body);
+        // console.log('datssssss=',req.body);
         const {profileLocation,bannerLocation,description,niche,tutId} = req.body;
         // const {profileLocation,bannerLocation} = req
         const profileData = await profileEdit(tutorRepository)(profileLocation,bannerLocation,description,niche,tutId);
@@ -302,7 +305,7 @@ export const createCourse = async(req:Request,res:Response)=>{
  export const editTutorial = async(req:Request,res:Response)=>{
     try{
       const{courseId,newTitle,newDescription,ImgLocation,VdoLocation,img,videoUrl,vdoId,index} = req.body;
-      console.log('cidddddddddddddddddddddddddddddddddddddd=',courseId);
+    //   console.log('cidddddddddddddddddddddddddddddddddddddd=',courseId);
       console.log('title=',newTitle);
       console.log('Imgloc=',ImgLocation);
       console.log('Vdo=',VdoLocation);
@@ -341,3 +344,49 @@ export const dashboardData = async(req:Request,res:Response) =>{
         res.status(500).json({ message: "Internal server error" });
     }
 }
+
+//Check Tutor for OTP
+export const checkTutorForOtp = async(req:Request,res:Response)=>{
+    try{
+        const email = req.body.email;
+        console.log('em=',email);
+        const emailCheck = await CheckTutor(tutorRepository)(email);
+        if(emailCheck){
+            const senderEmail = `${process.env.REACT_APP_SENDER_EMAIL}`;
+            const senderPassword = `${process.env.REACT_APP_SENDER_PASSWORD}`;
+            const recipientEmail = email;
+            const subject = 'OTP Verification';
+            otpSender(senderEmail, senderPassword, recipientEmail, subject)
+                .then((response:any) => {
+                    console.log(response);
+                    res.status(201).json({message:'Email exist',emailExist:true,otp:response.otp}) 
+                })
+                .catch((error:any) => {
+                    console.error('Error:', error);
+                });
+    }
+    }catch(err){
+        console.log(err);
+        
+    }
+}
+
+//Reset Tutor Password
+export const resetPassword = async(req:Request,res:Response)=>{
+    try{
+     const {email,password} = req.body;
+     console.log('email=',email);
+     console.log('password=',password);
+     const result = await passwordReset(tutorRepository)(email,password);
+     if(result){
+        res.status(201).json({message:'Password reset successfull',result}) 
+    }
+    else{
+        res.json({message:'Invalid datas'})
+    }
+    }catch(error){
+        console.log("err=",error);
+        
+        res.status(500).json({ message: "Internal server error"});
+    } 
+} 

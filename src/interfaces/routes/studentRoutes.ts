@@ -15,8 +15,8 @@ studentRouter.post('/payment',payment);
 studentRouter.get('/student/:studId',fetchStudentDetails);
 studentRouter.post('/post-review/:courseId/:studId',postReview);
 studentRouter.get('/view-reviews/:courseId',fetchReviews);
-studentRouter.post('/bookmark/:courseId/:studId',bookmarkCourses)
-studentRouter.post('/remove-bookmark/:courseId/:studId',removeBookmarkedCourses)
+studentRouter.post('/bookmark/:courseId/:studId',studentAuth,bookmarkCourses)
+studentRouter.post('/remove-bookmark/:courseId/:studId',studentAuth,removeBookmarkedCourses)
 studentRouter.get('/saved-courses/:studId',studentAuth,fetchSavedCourses)
 studentRouter.get('/purchased-courses/:studId',studentAuth,fetchPurchasedCourses)
 studentRouter.post('/check-student',checkStudForOtp)
@@ -24,7 +24,7 @@ studentRouter.post('/reset-password',resestPassword)
 studentRouter.post('/rating',rating)
 studentRouter.get('/tutors-list',fetchTutors)
 studentRouter.get('/view-tutor-profile/:tutId',showTutorProfile)
-studentRouter.post('/edit-reviews',editReviews)
-studentRouter.post('/delete-reviews',deleteReviews)
+studentRouter.post('/edit-reviews',studentAuth,editReviews)
+studentRouter.post('/delete-reviews',studentAuth,deleteReviews)
 studentRouter.get('/average-rating',findAvgRating)
 // export default studentRouter

@@ -93,6 +93,14 @@ const tutorRepositoryImpl = (tutorModel) => {
             return result;
         }
     });
+    //Reset password
+    const resetPassword = (email, password) => __awaiter(void 0, void 0, void 0, function* () {
+        const result = yield tutorModel.updateOne({ email: email }, { $set: { password: password } });
+        if (result.modifiedCount > 0) {
+            console.log('Password reset successful');
+            return result;
+        }
+    });
     return {
         create,
         findByEmail,
@@ -102,6 +110,7 @@ const tutorRepositoryImpl = (tutorModel) => {
         addTutorProfile,
         findTutorProfile,
         editTutorProfile,
+        resetPassword,
     };
 };
 exports.tutorRepositoryImpl = tutorRepositoryImpl;
