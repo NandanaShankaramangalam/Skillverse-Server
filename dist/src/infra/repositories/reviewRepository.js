@@ -39,8 +39,8 @@ const reviewRepositoryImpl = (reviewModel) => {
     });
     //Rating
     const rating = (ratingValue, studId, courseId) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log('cciidd=', courseId);
-        console.log('ssiidd=', studId);
+        // console.log('cciidd=',courseId);
+        // console.log('ssiidd=',studId);
         // const ratings = await reviewModel.updateMany({$and:[{studId:studId},{courseId:courseId}]},{$set:{rating:ratingValue}})
         const ratings = yield reviewModel.updateMany({ studId: new mongodb_1.ObjectId(studId), courseId: courseId }, { $set: { rating: ratingValue } });
         if (ratings.modifiedCount > 0) {

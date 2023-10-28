@@ -20,7 +20,7 @@ export const categoryRepositoryImpl = (categoryModel:MongoDBCategory):categoryRe
  //Add Category
 const addCategory = async(category:category):Promise<category | null>=>{
     const cat = await categoryModel.find({category:category.category});
-    console.log('catrep=',cat);
+    // console.log('catrep=',cat);
     if(cat.length===0){ 
     const createdCategory = await categoryModel.create(category);
     console.log('hiiii-',createdCategory);
@@ -48,7 +48,7 @@ const fetchSubcategories = async(category:string):Promise<category | null> =>{
 }
 //List Category
 const listCategory = async(id:string):Promise<category|void|UpdateResult > =>{
-    console.log('iddd=',id);
+    // console.log('iddd=',id);
     const result = await categoryModel.updateOne({_id:new ObjectId(id)},{$set:{status:false}});
     if(result.modifiedCount>0){
       console.log('modifiedcount blk ok');
@@ -58,7 +58,7 @@ const listCategory = async(id:string):Promise<category|void|UpdateResult > =>{
 
 //Unlist Category
 const unlistCategory = async(id:string):Promise<category|void|UpdateResult > =>{
-    console.log('iddd=',id);
+    // console.log('iddd=',id);
     const result = await categoryModel.updateOne({_id:new ObjectId(id)},{$set:{status:true}});
     if(result.modifiedCount>0){
       console.log('modifiedcount blk ok');
@@ -68,7 +68,7 @@ const unlistCategory = async(id:string):Promise<category|void|UpdateResult > =>{
 
 // Add Subcategory
 const addSubcategory = async(subcategory:string,cid:string):Promise<category|void|UpdateResult > =>{
-    console.log('iddd=',subcategory);
+    // console.log('iddd=',subcategory);
     const result = await categoryModel.updateOne({_id:new ObjectId(cid)},{$addToSet:{subcategory:subcategory}})
     if(result.modifiedCount>0){
         console.log('modifiedcount of add subcategory');
@@ -77,7 +77,7 @@ const addSubcategory = async(subcategory:string,cid:string):Promise<category|voi
 }
 
 const editCategory = async(category:string,cid:string):Promise<category|void|UpdateResult > =>{
-    console.log('iddd=',category);
+    // console.log('iddd=',category);
     const result = await categoryModel.updateOne({_id:new ObjectId(cid)},{$set:{category:category}})
     if(result.modifiedCount>0){
         console.log('modifiedcount of add subcategory');

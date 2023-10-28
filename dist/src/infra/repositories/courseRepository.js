@@ -16,10 +16,10 @@ const courseRepositoryImpl = (courseModel) => {
     //Create Course
     const createCourse = (course) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            console.log('okeyyyy');
-            console.log('course=', course);
+            // console.log('okeyyyy');
+            // console.log('course=',course);
             const createdCourse = yield courseModel.create(course);
-            console.log('hiiii-', createdCourse);
+            // console.log('hiiii-',createdCourse);
             return createdCourse.toObject();
         }
         catch (error) {
@@ -214,31 +214,31 @@ const courseRepositoryImpl = (courseModel) => {
     //Edit Tutorial
     const editTutorial = (courseId, newTitle, newDescription, ImgLocation, VdoLocation, img, videoUrl, vdoId, index) => __awaiter(void 0, void 0, void 0, function* () {
         if (ImgLocation && VdoLocation) {
-            console.log('vdoooiddd=', vdoId);
+            // console.log('vdoooiddd=',vdoId);
             const data = yield courseModel.updateOne({ _id: new mongodb_1.ObjectId(courseId), "tutorial.id": vdoId }, { $set: { 'tutorial.$.title': newTitle, 'tutorial.$.description': newDescription, 'tutorial.$.thumbnail': ImgLocation, 'tutorial.$.video': VdoLocation } });
             console.log('scnddddddddd=', data);
             console.log('!ImgLocation && !VdoLocation');
             return data;
         }
         else if (ImgLocation && !VdoLocation) {
-            console.log('vdoooiddd=', vdoId);
+            // console.log('vdoooiddd=',vdoId);
             const data = yield courseModel.updateOne({ _id: new mongodb_1.ObjectId(courseId), "tutorial.id": vdoId }, { $set: { 'tutorial.$.title': newTitle, 'tutorial.$.description': newDescription, 'tutorial.$.thumbnail': ImgLocation, 'tutorial.$.video': videoUrl } });
-            console.log('scnddddddddd=', data);
-            console.log('!ImgLocation && !VdoLocation');
+            // console.log('scnddddddddd=',data);
+            // console.log('!ImgLocation && !VdoLocation');
             return data;
         }
         else if (!ImgLocation && VdoLocation) {
-            console.log('vdoooiddd=', vdoId);
+            // console.log('vdoooiddd=',vdoId);
             const data = yield courseModel.updateOne({ _id: new mongodb_1.ObjectId(courseId), "tutorial.id": vdoId }, { $set: { 'tutorial.$.title': newTitle, 'tutorial.$.description': newDescription, 'tutorial.$.thumbnail': img, 'tutorial.$.video': VdoLocation } });
-            console.log('scnddddddddd=', data);
-            console.log('!ImgLocation && !VdoLocation');
+            // console.log('scnddddddddd=',data);
+            // console.log('!ImgLocation && !VdoLocation');
             return data;
         }
         else if (!ImgLocation && !VdoLocation) {
             console.log('vdoooiddd=', vdoId);
             const data = yield courseModel.updateOne({ _id: new mongodb_1.ObjectId(courseId), "tutorial.id": vdoId }, { $set: { 'tutorial.$.title': newTitle, 'tutorial.$.description': newDescription, 'tutorial.$.thumbnail': img, 'tutorial.$.video': videoUrl } });
-            console.log('scnddddddddd=', data);
-            console.log('!ImgLocation && !VdoLocation');
+            // console.log('scnddddddddd=',data);
+            // console.log('!ImgLocation && !VdoLocation');
             return data;
         }
         return null;

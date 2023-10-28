@@ -46,8 +46,8 @@ export const reviewRepositoryImpl = (reviewModel:MongoDBReview):reviewRepository
 
     //Rating
     const rating = async(ratingValue:number,studId:string,courseId:string): Promise<review|null|UpdateResult>=>{
-      console.log('cciidd=',courseId);
-      console.log('ssiidd=',studId);
+      // console.log('cciidd=',courseId);
+      // console.log('ssiidd=',studId);
       
       // const ratings = await reviewModel.updateMany({$and:[{studId:studId},{courseId:courseId}]},{$set:{rating:ratingValue}})
       const ratings = await reviewModel.updateMany({studId:new ObjectId(studId),courseId:courseId},{$set:{rating:ratingValue}})

@@ -73,6 +73,7 @@ io.on("connection", (socket) => {
         var _a, _b, _c, _d;
         console.log('newMessagereceived', newMessageReceived);
         let chat = newMessageReceived.chat;
+        console.log('chattttttttttt=', chat);
         console.log('new message=', newMessageReceived);
         const sender = newMessageReceived.student ? newMessageReceived.student : newMessageReceived.tutor;
         console.log('sender is', sender);

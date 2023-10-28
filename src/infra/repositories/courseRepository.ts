@@ -27,11 +27,11 @@ export const courseRepositoryImpl = (courseModel:MongoDBCourse):courseRepository
     //Create Course
     const createCourse = async(course:Course):Promise<Course>=>{
         try{
-          console.log('okeyyyy');
-          console.log('course=',course);
+          // console.log('okeyyyy');
+          // console.log('course=',course);
           
         const createdCourse=await courseModel.create(course)
-        console.log('hiiii-',createdCourse);
+        // console.log('hiiii-',createdCourse);
         return createdCourse.toObject();  
         }catch (error) {
             console.error('Error creating course:', error);
@@ -244,7 +244,7 @@ export const courseRepositoryImpl = (courseModel:MongoDBCourse):courseRepository
    //Edit Tutorial
    const editTutorial = async(courseId:string,newTitle:string,newDescription:string,ImgLocation:string,VdoLocation:string,img:string,videoUrl:string,vdoId:string,index:number):Promise<Course[]|null|UpdateResult>=>{
      if(ImgLocation && VdoLocation){
-      console.log('vdoooiddd=',vdoId);
+      // console.log('vdoooiddd=',vdoId);
       const data = await courseModel.updateOne({_id:new ObjectId(courseId),"tutorial.id":vdoId},
       {$set:{'tutorial.$.title':newTitle,'tutorial.$.description':newDescription,'tutorial.$.thumbnail':ImgLocation,'tutorial.$.video':VdoLocation}},
       )
@@ -253,22 +253,22 @@ export const courseRepositoryImpl = (courseModel:MongoDBCourse):courseRepository
       return data;
      }
      else if(ImgLocation && !VdoLocation){
-      console.log('vdoooiddd=',vdoId);
+      // console.log('vdoooiddd=',vdoId);
       const data = await courseModel.updateOne({_id:new ObjectId(courseId),"tutorial.id":vdoId},
       {$set:{'tutorial.$.title':newTitle,'tutorial.$.description':newDescription,'tutorial.$.thumbnail':ImgLocation,'tutorial.$.video':videoUrl}},
       )
-      console.log('scnddddddddd=',data);
-      console.log('!ImgLocation && !VdoLocation');
+      // console.log('scnddddddddd=',data);
+      // console.log('!ImgLocation && !VdoLocation');
       return data;   
      }
      else if(!ImgLocation && VdoLocation){
-        console.log('vdoooiddd=',vdoId);
+        // console.log('vdoooiddd=',vdoId);
         const data = await courseModel.updateOne({_id:new ObjectId(courseId),"tutorial.id":vdoId},
         {$set:{'tutorial.$.title':newTitle,'tutorial.$.description':newDescription,'tutorial.$.thumbnail':img,'tutorial.$.video':VdoLocation}},
         )
       
-        console.log('scnddddddddd=',data);
-        console.log('!ImgLocation && !VdoLocation');
+        // console.log('scnddddddddd=',data);
+        // console.log('!ImgLocation && !VdoLocation');
         return data;
      }
      else if(!ImgLocation && !VdoLocation){  
@@ -277,8 +277,8 @@ export const courseRepositoryImpl = (courseModel:MongoDBCourse):courseRepository
         {$set:{'tutorial.$.title':newTitle,'tutorial.$.description':newDescription,'tutorial.$.thumbnail':img,'tutorial.$.video':videoUrl}},
         )
       
-        console.log('scnddddddddd=',data);
-        console.log('!ImgLocation && !VdoLocation');
+        // console.log('scnddddddddd=',data);
+        // console.log('!ImgLocation && !VdoLocation');
         return data;
      }
      return null

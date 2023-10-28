@@ -15,7 +15,7 @@ const categoryRepositoryImpl = (categoryModel) => {
     //Add Category
     const addCategory = (category) => __awaiter(void 0, void 0, void 0, function* () {
         const cat = yield categoryModel.find({ category: category.category });
-        console.log('catrep=', cat);
+        // console.log('catrep=',cat);
         if (cat.length === 0) {
             const createdCategory = yield categoryModel.create(category);
             console.log('hiiii-', createdCategory);
@@ -42,7 +42,7 @@ const categoryRepositoryImpl = (categoryModel) => {
     });
     //List Category
     const listCategory = (id) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log('iddd=', id);
+        // console.log('iddd=',id);
         const result = yield categoryModel.updateOne({ _id: new mongodb_1.ObjectId(id) }, { $set: { status: false } });
         if (result.modifiedCount > 0) {
             console.log('modifiedcount blk ok');
@@ -51,7 +51,7 @@ const categoryRepositoryImpl = (categoryModel) => {
     });
     //Unlist Category
     const unlistCategory = (id) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log('iddd=', id);
+        // console.log('iddd=',id);
         const result = yield categoryModel.updateOne({ _id: new mongodb_1.ObjectId(id) }, { $set: { status: true } });
         if (result.modifiedCount > 0) {
             console.log('modifiedcount blk ok');
@@ -60,7 +60,7 @@ const categoryRepositoryImpl = (categoryModel) => {
     });
     // Add Subcategory
     const addSubcategory = (subcategory, cid) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log('iddd=', subcategory);
+        // console.log('iddd=',subcategory);
         const result = yield categoryModel.updateOne({ _id: new mongodb_1.ObjectId(cid) }, { $addToSet: { subcategory: subcategory } });
         if (result.modifiedCount > 0) {
             console.log('modifiedcount of add subcategory');
@@ -68,7 +68,7 @@ const categoryRepositoryImpl = (categoryModel) => {
         }
     });
     const editCategory = (category, cid) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log('iddd=', category);
+        // console.log('iddd=',category);
         const result = yield categoryModel.updateOne({ _id: new mongodb_1.ObjectId(cid) }, { $set: { category: category } });
         if (result.modifiedCount > 0) {
             console.log('modifiedcount of add subcategory');
